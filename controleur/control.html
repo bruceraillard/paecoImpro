@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Contrôle de l'Impro</title>
+    <link rel="stylesheet" href="control.css">
+</head>
+<body>
+<div class="control-panel">
+    <h1>Configuration de l'Impro</h1>
+
+    <div class="config">
+        <label>Thème :
+            <input type="text" id="input-theme" placeholder="Entrez le thème">
+        </label>
+    </div>
+
+    <div class="teams-selection">
+        <label>Nombre d'équipes :
+            <select id="select-teams">
+                <option value="2" selected>2 équipes</option>
+                <option value="3">3 équipes</option>
+                <option value="4">4 équipes</option>
+            </select>
+        </label>
+    </div>
+
+    <div id="teams-config">
+        <!-- Les formulaires de configuration des équipes seront générés ici -->
+    </div>
+
+    <div class="timer-config">
+        <label>Temps (secondes) :
+            <input type="number" id="input-timer" value="300">
+        </label>
+        <button id="start-timer">Démarrer</button>
+        <button id="pause-timer">Pause</button>
+    </div>
+
+    <div class="actions">
+        <button id="update">Mettre à jour</button>
+    </div>
+</div>
+<script src="control.js"></script>
+</body>
+</html>

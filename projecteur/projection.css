@@ -1,0 +1,105 @@
+/* projection.css */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(to bottom right, #3F51B5, #2196F3);
+    color: #fff;
+    overflow: hidden; /* empêche toute barre de scroll */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+#theme {
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+#timer {
+    font-size: 1.5rem;
+    background: #fff;
+    color: #3F51B5;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#teams-container {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center; /* pour centrage vertical si 1 ligne */
+    gap: 30px;
+    padding: 10px;
+}
+
+.team {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 16px;
+    width: 260px;
+    height: 160px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.team:hover {
+    transform: scale(1.03);
+}
+
+.team h2 {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.team p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.card {
+    width: 20px;
+    height: 20px;
+    background-color: #FFEB3B;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.disqualified {
+    border: 3px solid red;
+    opacity: 0.7;
+}
