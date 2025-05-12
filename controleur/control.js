@@ -110,3 +110,7 @@ document.getElementById('start-timer').addEventListener('click', () => {
 document.getElementById('pause-timer').addEventListener('click', () => {
     clearInterval(timerInterval);
 });
+
+document.getElementById('open-projector').addEventListener('click', () => {
+    window.open('../projecteur/projecteur.html', '_blank');
+})

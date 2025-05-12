@@ -26,7 +26,7 @@ function updateTeamsDisplay(teams) {
 
         teamDiv.innerHTML = `
             <h2>${team.name}</h2>
-            <p>Score : <span>${team.score}</span></p>
+            <p>Score : <br><span>${team.score}</span></p>
             ${cardsHtml}
         `;
         container.appendChild(teamDiv);
