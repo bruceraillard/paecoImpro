@@ -1,11 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 /* === Base === */
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(to bottom right, #2196F3, #3F51B5);
-    color: #fff;
+    font-family: Montserrat, sans-serif;
+    background-color: #000000;
+    background-image: url("../assets/images/yellow_spiral.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -17,6 +23,7 @@ html, body {
     height: 100vh;
     padding: 20px;
     gap: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* === Titre === */
@@ -24,17 +31,22 @@ html, body {
     font-size: 2rem;
     text-align: center;
     margin: 0;
+    font-family: 'Playfair Display', serif;
 }
 
 /* === Sections hautes === */
-.config,
-.teams-selection,
-.timer-config,
-.actions {
+.config {
+
+}
+
+.teams-selection {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
 }
 
 .config input,
@@ -46,27 +58,25 @@ html, body {
     border: none;
     outline: none;
     font-size: 1rem;
-    background: #fff;
+    background: #c9c9c9;
     color: #333;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-family: 'Montserrat', sans-serif;
 }
 
 /* === Boutons généraux === */
 button {
-    background-color: #FFEB3B;
+    background-color: #fed32e;
     border: none;
     padding: 10px 20px;
     font-size: 1rem;
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s;
-    color: #3F51B5;
-    font-weight: 600;
+    color: #292929;
+    font-weight: bold;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-button:hover {
-    background-color: #FFC107;
+    font-family: 'Playfair Display', serif;
 }
 
 /* === Zone des équipes === */
@@ -84,7 +94,7 @@ button:hover {
 .team-config {
     width: 40%;
     min-width: 280px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(41, 41, 41, 0.9);
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -115,6 +125,7 @@ input[type="text"] {
     font-size: 1rem;
     margin-top: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    background-color: #c9c9c9;
 }
 
 /* === Contrôles score/cartons côte à côte === */
@@ -155,19 +166,42 @@ input[type="text"] {
 
 .btn-increment,
 .btn-decrement {
-    background-color: #fff;
+    background-color: #fed32e;
     width: 30px;
     height: 30px;
-    color: #3F51B5;
+    color: #000000;
     border: none;
     padding: 5px 10px;
     border-radius: 8px;
     font-size: 1.1rem;
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-family: 'Montserrat', sans-serif;
 }
 
+button:hover,
 .btn-increment:hover,
 .btn-decrement:hover {
     background-color: #FFC107;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#open-projector {
+    margin-left: auto;
 }
