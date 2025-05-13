@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Historique des manches</title>
+    <link rel="stylesheet" href="history.css">
+</head>
+<body>
+<div class="control-panel">
+    <h1>Historique des manches</h1>
+    <div class="actions">
+        <button id="download-history">Télécharger l'historique</button>
+        <button id="clear-history">Réinitialiser</button>
+        <button onclick="window.location.href='../controleur/control.html'">Retour</button>
+    </div>
+    <div id="history-display" style="overflow-y: auto; flex: 1; padding: 1rem;"></div>
+</div>
+<script src="history.js"></script>
+</body>
+</html>
