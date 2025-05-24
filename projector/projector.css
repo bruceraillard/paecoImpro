@@ -1,0 +1,112 @@
+/* Reset & Global Layout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100vh;
+    background-color: #111;
+    color: white;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+main {
+    width: 100%;
+    height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Page Title */
+h1 {
+    text-align: center;
+    font-size: 3rem;
+    color: #f1f1f1;
+    margin-bottom: 1rem;
+}
+
+/* Teams Display */
+#teams-display {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.team-display {
+    flex: 1 1 20%;
+    min-width: 200px;
+    background-color: #222;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.team-name {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.team-score,
+.team-cards {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4dd0e1;
+}
+
+/* Round Info */
+#round-info {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+#round-info h3 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+}
+
+/* Timer Section */
+#timer-display {
+    text-align: center;
+}
+
+#phase-label {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+#timer-value {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #00e676;
+}
+
+/* Hidden class */
+.hidden {
+    display: none;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .team-display {
+        flex: 1 1 45%;
+    }
+
+    #round-info h3,
+    .team-name {
+        font-size: 1.5rem;
+    }
+
+    #timer-value {
+        font-size: 3rem;
+    }
+}

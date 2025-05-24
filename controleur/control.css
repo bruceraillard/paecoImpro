@@ -1,211 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-/* === Base === */
-html, body {
+/* General Layout */
+body {
     margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: Montserrat, sans-serif;
-    background-color: #000000;
-    background-image: url("../assets/images/yellow_spiral.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    color: #ffffff;
-    overflow: hidden;
+    padding: 2rem;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+main {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Headings */
+h1, h2 {
+    text-align: center;
+    color: #222;
+}
+
+h1 {
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+h3.team-name {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+/* Sections */
+section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Input Groups */
+.field-group {
+    margin-bottom: 1.2rem;
+}
+
+.field-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     box-sizing: border-box;
 }
 
-/* === Conteneur principal === */
-.control-panel {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 20px;
-    gap: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
+input[type="radio"] {
+    margin-right: 0.5rem;
 }
 
-/* === Titre === */
-.control-panel h1 {
-    font-size: 2rem;
-    text-align: center;
-    margin: 0;
-    font-family: 'Playfair Display', serif;
-}
-
-/* === Sections hautes === */
-.config {
-
-}
-
-.teams-selection {
-    display: flex;
-    align-items: center;
-}
-
-.actions {
-    display: flex;
-    justify-content: center;
-}
-
-.config input,
-.teams-selection select,
-.timer-config input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    background: #c9c9c9;
-    color: #333;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    font-family: 'Montserrat', sans-serif;
-}
-
-/* === Boutons généraux === */
+/* Buttons */
 button {
-    background-color: #fed32e;
+    background-color: #007bff;
+    color: white;
     border: none;
-    padding: 10px 20px;
     font-size: 1rem;
-    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    margin-top: 1rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    color: #292929;
-    font-weight: bold;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    font-family: 'Playfair Display', serif;
+    transition: background-color 0.2s ease;
 }
 
-/* === Zone des équipes === */
-#teams-config {
+button:hover {
+    background-color: #0056b3;
+}
+
+button.hidden {
+    display: none;
+}
+
+/* Team Controls */
+.team-control {
+    margin-bottom: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.score-control,
+.cards-control {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    align-content: flex-start;
-    overflow: hidden; /* éviter scroll */
-    padding: 10px 0;
+    align-items: center;
+    margin-top: 0.5rem;
 }
 
-/* === Carte équipe === */
-.team-config {
-    width: 40%;
-    min-width: 280px;
-    background: rgba(41, 41, 41, 0.9);
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* === Titre équipe === */
-.team-config h2 {
-    margin: 0 0 10px;
-    font-size: 1.3rem;
-}
-
-/* === Champs généraux === */
-label {
-    margin-bottom: 8px;
+.score-control span,
+.cards-control span {
+    margin-right: 1rem;
     font-weight: 500;
-    font-size: 0.95rem;
-    display: block;
-}
-
-input[type="text"] {
-    width: 70%;
-    padding: 8px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-    margin-top: 4px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    background-color: #c9c9c9;
-}
-
-/* === Contrôles score/cartons côte à côte === */
-.row-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 10px;
-}
-
-.control-group {
-    flex: 1;
-}
-
-.separator {
-    width: 2px;
-    height: 50px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 1px;
-}
-
-/* === Boutons +/- et valeurs === */
-.value-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-}
-
-.value-display {
-    font-size: 1.2rem;
-    width: 30px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.btn-increment,
-.btn-decrement {
-    background-color: #fed32e;
-    width: 30px;
-    height: 30px;
-    color: #000000;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 8px;
     font-size: 1.1rem;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    font-family: 'Montserrat', sans-serif;
 }
 
-button:hover,
-.btn-increment:hover,
-.btn-decrement:hover {
-    background-color: #FFC107;
+.score-control button,
+.cards-control button {
+    background-color: #28a745;
+    margin-left: 0.5rem;
+    padding: 0.3rem 0.8rem;
+    font-weight: bold;
+    font-size: 1rem;
 }
 
-.header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    padding: 1rem;
-    border-bottom: 1px solid #ccc;
+.score-remove,
+.cards-remove {
+    background-color: #dc3545;
 }
 
-.header h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+.score-remove:hover,
+.cards-remove:hover {
+    background-color: #a71d2a;
 }
 
-#open-projector {
-    margin-left: auto;
+.score-add:hover,
+.cards-add:hover {
+    background-color: #1c7c31;
 }
 
-#show-history {
-    margin-right: auto;
+/* Responsive */
+@media screen and (max-width: 600px) {
+    .score-control,
+    .cards-control {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .score-control button,
+    .cards-control button {
+        margin-left: 0;
+        margin-top: 0.4rem;
+    }
 }

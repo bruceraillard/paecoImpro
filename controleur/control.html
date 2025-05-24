@@ -1,52 +1,106 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Contrôle de l'Impro</title>
-    <link rel="stylesheet" href="control.css">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Contrôle du Jeu – Impro Multijoueur</title>
+    <link rel="stylesheet" href="control.css"/>
 </head>
 <body>
-<div class="control-panel">
-    <div class="header">
-        <button id="show-history" onclick="window.location.href='../history/history.html'">Voir l’historique</button>
-        <h1>Contrôle de l'Impro</h1>
-        <button id="open-projector">Ouvrir le projecteur</button>
-    </div>
+<main>
+    <h1>Contrôle du Jeu</h1>
 
-    <div class="config">
-        <label>Thème :
-            <input type="text" id="input-theme" placeholder="Entrez le thème">
-        </label>
-    </div>
+    <!-- Paramètres de la manche -->
+    <section id="round-config">
+        <h2>Paramètres de la manche</h2>
+        <div class="field-group">
+            <label>Mode de jeu :</label>
+            <label><input type="radio" name="mode" value="mixte" checked/> Mixte</label>
+            <label><input type="radio" name="mode" value="tour"/> Tour par tour</label>
+        </div>
+        <div class="field-group">
+            <label for="theme">Thème :</label>
+            <input type="text" id="theme" placeholder="Ex. : Théâtre d’impro"/>
+        </div>
+        <div class="field-group">
+            <label for="category">Catégorie :</label>
+            <input type="text" id="category" placeholder="Ex. : Comédie"/>
+        </div>
+        <div class="field-group">
+            <label for="prep-time">Préparation (s) :</label>
+            <input type="number" id="prep-time" value="30" min="0"/>
+        </div>
+        <div class="field-group">
+            <label for="impro-time">Impro (s) :</label>
+            <input type="number" id="impro-time" value="60" min="0"/>
+        </div>
+        <button id="start-round">Lancer la Manche</button>
+        <button id="next-team" class="hidden">Passer à l’équipe suivante</button>
+        <button id="reset-round" class="hidden">Relancer une Manche</button>
+    </section>
 
-    <div class="teams-selection">
-        <label>Nombre d'équipes :
-            <select id="select-teams">
-                <option value="2" selected>2 équipes</option>
-                <option value="3">3 équipes</option>
-                <option value="4">4 équipes</option>
-            </select>
-        </label>
-    </div>
+    <!-- Contrôle des équipes -->
+    <section id="teams-controls">
 
-    <div id="teams-config">
-        <!-- Les formulaires de configuration des équipes seront générés ici -->
-    </div>
+        <div class="team-control" data-team-index="1">
+            <h3 class="team-name">Équipe 1</h3>
+            <div class="score-control">
+                <span>Score : <span class="score-value" data-team-index="1">0</span></span>
+                <button class="score-add" data-team-index="1">+1</button>
+                <button class="score-remove" data-team-index="1">–1</button>
+            </div>
+            <div class="cards-control">
+                <span>Cartons : <span class="cards-value" data-team-index="1">0</span></span>
+                <button class="cards-add" data-team-index="1">+1</button>
+                <button class="cards-remove" data-team-index="1">–1</button>
+            </div>
+        </div>
 
-    <div class="actions">
-        <button id="update">Mettre à jour</button>
-        <button id="end-round">Fin de la manche</button>
-    </div>
+        <div class="team-control" data-team-index="2">
+            <h3 class="team-name">Équipe 2</h3>
+            <div class="score-control">
+                <span>Score : <span class="score-value" data-team-index="2">0</span></span>
+                <button class="score-add" data-team-index="2">+</button>
+                <button class="score-remove" data-team-index="2">–</button>
+            </div>
+            <div class="cards-control">
+                <span>Cartons : <span class="cards-value" data-team-index="2">0</span></span>
+                <button class="cards-add" data-team-index="2">+</button>
+                <button class="cards-remove" data-team-index="2">–</button>
+            </div>
+        </div>
 
-    <div class="timer-config">
-        <label>Temps (secondes) :
-            <input type="number" id="input-timer" value="300">
-        </label>
-        <button id="start-timer">Démarrer</button>
-        <button id="pause-timer">Pause</button>
-    </div>
-</div>
+        <div class="team-control hidden" data-team-index="3">
+            <h3 class="team-name">Équipe 3</h3>
+            <div class="score-control">
+                <span>Score : <span class="score-value" data-team-index="3">0</span></span>
+                <button class="score-add" data-team-index="3">+</button>
+                <button class="score-remove" data-team-index="3">–</button>
+            </div>
+            <div class="cards-control">
+                <span>Cartons : <span class="cards-value" data-team-index="3">0</span></span>
+                <button class="cards-add" data-team-index="3">+</button>
+                <button class="cards-remove" data-team-index="3">–</button>
+            </div>
+        </div>
+
+        <div class="team-control hidden" data-team-index="4">
+            <h3 class="team-name">Équipe 4</h3>
+            <div class="score-control">
+                <span>Score : <span class="score-value" data-team-index="4">0</span></span>
+                <button class="score-add" data-team-index="4">+</button>
+                <button class="score-remove" data-team-index="4">–</button>
+            </div>
+            <div class="cards-control">
+                <span>Cartons : <span class="cards-value" data-team-index="4">0</span></span>
+                <button class="cards-add" data-team-index="4">+</button>
+                <button class="cards-remove" data-team-index="4">–</button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
 <script src="control.js"></script>
-<script src="../history/history.js"></script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Projecteur – Impro Multijoueur</title>
+    <link rel="stylesheet" href="projector.css"/>
+</head>
+<body>
+<main>
+    <h1>Projecteur</h1>
+
+    <!-- 1. Affichage des équipes -->
+    <section id="teams-display">
+        <!-- Équipe 1 -->
+        <div class="team-display" data-team-index="1">
+            <h2 class="team-name">Équipe 1</h2>
+            <p>Score : <span class="team-score" data-team-index="1">0</span></p>
+            <p>Cartons : <span class="team-cards" data-team-index="1">0</span></p>
+        </div>
+        <!-- Équipe 2 -->
+        <div class="team-display" data-team-index="2">
+            <h2 class="team-name">Équipe 2</h2>
+            <p>Score : <span class="team-score" data-team-index="2">0</span></p>
+            <p>Cartons : <span class="team-cards" data-team-index="2">0</span></p>
+        </div>
+        <!-- Équipe 3 (masquée si non utilisée) -->
+        <div class="team-display hidden" data-team-index="3">
+            <h2 class="team-name">Équipe 3</h2>
+            <p>Score : <span class="team-score" data-team-index="3">0</span></p>
+            <p>Cartons : <span class="team-cards" data-team-index="3">0</span></p>
+        </div>
+        <!-- Équipe 4 (masquée si non utilisée) -->
+        <div class="team-display hidden" data-team-index="4">
+            <h2 class="team-name">Équipe 4</h2>
+            <p>Score : <span class="team-score" data-team-index="4">0</span></p>
+            <p>Cartons : <span class="team-cards" data-team-index="4">0</span></p>
+        </div>
+    </section>
+
+    <!-- 2. Affichage des paramètres de la manche -->
+    <section id="round-info">
+        <h3>Thème : <span id="display-theme">—</span></h3>
+        <h3>Catégorie : <span id="display-category">—</span></h3>
+    </section>
+
+    <!-- 3. Affichage des timers -->
+    <section id="timer-display">
+        <p id="phase-label">Phase : —</p>
+        <p id="timer-value">00:00</p>
+    </section>
+</main>
+
+<script src="projector.js"></script>
+</body>
+</html>

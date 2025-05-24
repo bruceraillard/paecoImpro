@@ -1,136 +1,225 @@
-// Create a communication channel for syncing data across tabs/windows
-const channel = new BroadcastChannel('impro_channel');
+const channel = new BroadcastChannel('impro-game');
+let settings = { teamCount: 2, teams: [] };
+let scores = [], cards = [];
+let currentTeam = 1;
+let prepInterval = null, improInterval = null;
 
-// Function to dynamically generate team configuration UI
-function generateTeamConfigs(numTeams) {
-    const teamsConfigDiv = document.getElementById('teams-config');
-
-    // Clear the current team configuration area
-    teamsConfigDiv.innerHTML = '';
-
-    // Loop to generate input fields and controls for each team
-    for (let i = 1; i <= numTeams; i++) {
-        const teamDiv = document.createElement('div');
-        teamDiv.classList.add('team-config');
-
-        // Set inner HTML with name input, score, and cards controls
-        teamDiv.innerHTML = `
-            <h2>Équipe ${i}</h2>
-            <label>Nom :
-                <input type="text" id="input-team${i}-name" placeholder="Nom de l'équipe ${i}">
-            </label>
-            <div class="row-controls">
-                <div class="control-group">
-                    <label>Score</label>
-                    <div class="value-controls">
-                        <button type="button" class="btn-decrement" data-target="score${i}">-</button>
-                        <span id="score${i}" class="value-display">0</span>
-                        <button type="button" class="btn-increment" data-target="score${i}">+</button>
-                    </div>
-                </div>
-                <div class="separator"></div>
-                <div class="control-group">
-                    <label>Cartons</label>
-                    <div class="value-controls">
-                        <button type="button" class="btn-decrement" data-target="cards${i}">-</button>
-                        <span id="cards${i}" class="value-display">0</span>
-                        <button type="button" class="btn-increment" data-target="cards${i}">+</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Append the configured block to the DOM
-        teamsConfigDiv.appendChild(teamDiv);
+// --- Chargement des settings ---
+function loadSettings() {
+    try {
+        const raw = localStorage.getItem('impro-settings');
+        if (raw) settings = JSON.parse(raw);
+    } catch {
+        settings = { teamCount: 2, teams: [] };
     }
+}
 
-    // Add event listeners for increment buttons
-    document.querySelectorAll('.btn-increment').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            const span = document.getElementById(targetId);
-            let value = parseInt(span.textContent, 10);
+// --- Broadcast helper ---
+function broadcast(type, payload = {}) {
+    channel.postMessage({ type, payload });
+}
 
-            // Prevent incrementing cards above 4
-            if (targetId.includes("cards") && value >= 4) return;
-
-            span.textContent = value + 1;
-        });
-    });
-
-    // Add event listeners for decrement buttons
-    document.querySelectorAll('.btn-decrement').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            const span = document.getElementById(targetId);
-            let value = parseInt(span.textContent, 10);
-
-            // Prevent going below zero
-            if (value > 0) span.textContent = value - 1;
-        });
+// --- UI updates ---
+function updateTeamControls() {
+    document.querySelectorAll('.team-control').forEach(el => {
+        const i = +el.dataset.teamIndex;
+        if (i <= settings.teamCount) {
+            el.classList.remove('hidden');
+            const info = settings.teams[i - 1] || {};
+            const nameEl = el.querySelector('.team-name');
+            nameEl.textContent = info.name || `Équipe ${i}`;
+            nameEl.style.color = info.color || '#fff';
+        } else {
+            el.classList.add('hidden');
+        }
     });
 }
 
-// Handle team number changes via the select dropdown
-const selectTeams = document.getElementById('select-teams');
-selectTeams.addEventListener('change', () => {
-    const numTeams = parseInt(selectTeams.value, 10);
-    generateTeamConfigs(numTeams);
-});
+function resetScoresAndCards() {
+    scores = Array(settings.teamCount).fill(0);
+    cards = Array(settings.teamCount).fill(0);
+    updateScoreUI();
+    updateCardsUI();
+}
 
-// Initialize the UI with 2 teams on load
-generateTeamConfigs(2);
-
-// Send configuration data to the projector via the channel
-document.getElementById('update').addEventListener('click', () => {
-    const theme = document.getElementById('input-theme').value;
-    const numTeams = parseInt(selectTeams.value, 10);
-    let teams = [];
-
-    // Gather name, score, and card data for each team
-    for (let i = 1; i <= numTeams; i++) {
-        const name = document.getElementById(`input-team${i}-name`).value || `Équipe ${i}`;
-        const score = parseInt(document.getElementById(`score${i}`).textContent, 10);
-        const cards = parseInt(document.getElementById(`cards${i}`).textContent, 10);
-        teams.push({name, score, cards});
-    }
-
-    // Send data to other tabs/listeners (e.g., projector view)
-    channel.postMessage({
-        theme: theme,
-        teams: teams
+function updateScoreUI() {
+    scores.forEach((v, i) => {
+        const el = document.querySelector(`.score-value[data-team-index="${i + 1}"]`);
+        if (el) el.textContent = v;
     });
-});
+}
 
-// Timer management
-let timerInterval;      // Reference to the timer interval
-let remainingTime = 0;  // Countdown value in seconds
+function updateCardsUI() {
+    cards.forEach((v, i) => {
+        const el = document.querySelector(`.cards-value[data-team-index="${i + 1}"]`);
+        if (el) el.textContent = v;
+    });
+}
 
-// Start the timer and broadcast the countdown
-document.getElementById('start-timer').addEventListener('click', () => {
-    remainingTime = parseInt(document.getElementById('input-timer').value, 10) || 0;
+// --- Timer avec précision améliorée ---
+function runTimer(duration, phase, onComplete, teamIndex = null) {
+    const endTime = Date.now() + duration * 1000;
+    let lastSent = duration;
 
-    // Notify listeners of the initial time
-    channel.postMessage({timer: remainingTime});
+    broadcast('timer', { phase, remaining: lastSent, ...(teamIndex ? { teamIndex } : {}) });
 
-    // Decrease timer every second and notify projector
-    timerInterval = setInterval(() => {
-        if (remainingTime > 0) {
-            remainingTime--;
-            channel.postMessage({timer: remainingTime});
-        } else {
-            // Stop the timer once it reaches 0
-            clearInterval(timerInterval);
+    const id = setInterval(() => {
+        const now = Date.now();
+        const secLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+
+        if (secLeft !== lastSent) {
+            lastSent = secLeft;
+            broadcast('timer', { phase, remaining: secLeft, ...(teamIndex ? { teamIndex } : {}) });
         }
-    }, 1000);
-});
 
-// Pause the current timer
-document.getElementById('pause-timer').addEventListener('click', () => {
-    clearInterval(timerInterval);
-});
+        if (secLeft <= 0) {
+            clearInterval(id);
+            onComplete();
+        }
+    }, 200);
 
-// Open the projector view in a new tab
-document.getElementById('open-projector').addEventListener('click', () => {
-    window.open('../projecteur/projecteur.html', '_blank');
+    if (phase === 'prep') prepInterval = id;
+    else improInterval = id;
+}
+
+// --- Phases de jeu ---
+function startPreparation(prepTime, mode, improTime) {
+    runTimer(prepTime, 'prep', () => {
+        if (mode === 'mixte') {
+            startMixtePhase(improTime);
+        } else {
+            startTourPhase(1, improTime);
+        }
+    });
+}
+
+function startMixtePhase(duration) {
+    runTimer(duration, 'impro', () => {
+        broadcast('roundEnd');
+        document.getElementById('reset-round')?.classList.remove('hidden');
+    });
+}
+
+function startTourPhase(teamIdx, duration) {
+    currentTeam = teamIdx;
+    const teamInfo = settings.teams[teamIdx - 1] || {};
+    broadcast('turnStart', {
+        teamIndex: teamIdx,
+        teamName: teamInfo.name || `Équipe ${teamIdx}`,
+        teamColor: teamInfo.color || '#ffffff'
+    });
+
+
+    runTimer(duration, 'impro', () => {
+        const nextBtn = document.getElementById('next-team');
+        const resetBtn = document.getElementById('reset-round');
+
+        if (teamIdx < settings.teamCount) {
+            nextBtn?.classList.remove('hidden');
+        } else {
+            broadcast('roundEnd');
+            resetBtn?.classList.remove('hidden');
+            nextBtn?.classList.add('hidden');
+        }
+    }, teamIdx);
+}
+
+function resetRound() {
+    clearInterval(prepInterval);
+    clearInterval(improInterval);
+    resetScoresAndCards();
+    document.getElementById('start-round')?.removeAttribute('disabled');
+    document.getElementById('next-team')?.classList.add('hidden');
+    document.getElementById('reset-round')?.classList.add('hidden');
+    broadcast('roundReset');
+}
+
+// --- Initialisation DOM ---
+document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('start-round');
+    const nextBtn = document.getElementById('next-team');
+    const resetBtn = document.getElementById('reset-round');
+
+    loadSettings();
+    resetScoresAndCards();
+    updateTeamControls();
+
+    channel.onmessage = ({ data }) => {
+        if (data.type === 'init' || data.type === 'settingsUpdate') {
+            settings = data.payload;
+            resetScoresAndCards();
+            updateTeamControls();
+        }
+        if (data.type === 'scoreUpdate') updateScoreUI();
+        if (data.type === 'cardsUpdate') updateCardsUI();
+    };
+
+    // Gestion scores/cartons
+    document.querySelectorAll('.score-add').forEach(btn =>
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            scores[i]++;
+            updateScoreUI();
+            broadcast('scoreUpdate', { teamIndex: i + 1, score: scores[i] });
+        })
+    );
+    document.querySelectorAll('.score-remove').forEach(btn =>
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (scores[i] > 0) {
+                scores[i]--;
+                updateScoreUI();
+                broadcast('scoreUpdate', { teamIndex: i + 1, score: scores[i] });
+            }
+        })
+    );
+    document.querySelectorAll('.cards-add').forEach(btn =>
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (cards[i] < 3) {
+                cards[i]++;
+                updateCardsUI();
+                broadcast('cardsUpdate', { teamIndex: i + 1, cards: cards[i] });
+            }
+        })
+    );
+    document.querySelectorAll('.cards-remove').forEach(btn =>
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (cards[i] > 0) {
+                cards[i]--;
+                updateCardsUI();
+                broadcast('cardsUpdate', { teamIndex: i + 1, cards: cards[i] });
+            }
+        })
+    );
+
+    // Lancement de la manche
+    startBtn?.addEventListener('click', () => {
+        const mode = document.querySelector('input[name="mode"]:checked')?.value;
+        const theme = document.getElementById('theme')?.value;
+        const category = document.getElementById('category')?.value;
+        const prepTime = +document.getElementById('prep-time')?.value;
+        const improTime = +document.getElementById('impro-time')?.value;
+
+        broadcast('roundStart', { mode, theme, category, prepTime, improTime });
+
+        startBtn.setAttribute('disabled', '');
+        nextBtn?.classList.add('hidden');
+        resetBtn?.classList.add('hidden');
+
+        startPreparation(prepTime, mode, improTime);
+    });
+
+    // Passage à l'équipe suivante
+    nextBtn?.addEventListener('click', () => {
+        const nextTeam = currentTeam + 1;
+        if (nextTeam <= settings.teamCount) {
+            nextBtn.classList.add('hidden'); // cache immédiatement
+            startTourPhase(nextTeam, +document.getElementById('impro-time')?.value);
+        }
+    });
+
+    // Réinitialisation
+    resetBtn?.addEventListener('click', resetRound);
 });

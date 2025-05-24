@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Configuration – Jeu d’Impro</title>
+    <link rel="stylesheet" href="settings.css"/>
+</head>
+<body>
+<main>
+    <h1>Configuration des équipes</h1>
+
+    <!-- Sélection du nombre d’équipes -->
+    <section id="team-count-section">
+        <label for="team-count">Nombre d’équipes :</label>
+        <select id="team-count" name="team-count">
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </section>
+
+    <!-- Conteneur des formulaires par équipe -->
+    <section id="teams-container">
+        <!-- Répétez ce bloc pour les équipes 1 à 4 -->
+        <div class="team-config" data-team-index="1">
+            <h2>Équipe 1</h2>
+            <div class="field-group">
+                <label for="team-name-1">Nom :</label>
+                <input type="text" id="team-name-1" name="team-name-1" placeholder="Nom de l’équipe 1"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-1">Couleur :</label>
+                <input type="color" id="team-color-1" name="team-color-1" value="#e6194B"/>
+            </div>
+        </div>
+
+        <div class="team-config" data-team-index="2">
+            <h2>Équipe 2</h2>
+            <div class="field-group">
+                <label for="team-name-2">Nom :</label>
+                <input type="text" id="team-name-2" name="team-name-2" placeholder="Nom de l’équipe 2"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-2">Couleur :</label>
+                <input type="color" id="team-color-2" name="team-color-2" value="#3cb44b"/>
+            </div>
+        </div>
+
+        <div class="team-config hidden" data-team-index="3">
+            <h2>Équipe 3</h2>
+            <div class="field-group">
+                <label for="team-name-3">Nom :</label>
+                <input type="text" id="team-name-3" name="team-name-3" placeholder="Nom de l’équipe 3"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-3">Couleur :</label>
+                <input type="color" id="team-color-3" name="team-color-3" value="#ffe119"/>
+            </div>
+        </div>
+
+        <div class="team-config hidden" data-team-index="4">
+            <h2>Équipe 4</h2>
+            <div class="field-group">
+                <label for="team-name-4">Nom :</label>
+                <input type="text" id="team-name-4" name="team-name-4" placeholder="Nom de l’équipe 4"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-4">Couleur :</label>
+                <input type="color" id="team-color-4" name="team-color-4" value="#4363d8"/>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Lien vers le script qui gérera l’affichage dynamique -->
+<script src="settings.js"></script>
+</body>
+</html>
