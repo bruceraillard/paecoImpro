@@ -1,10 +1,8 @@
 const channel = new BroadcastChannel('impro-game');
 
 let settings = {teamCount: 2, teams: []};
-let alertPlayed = false;
-let endPlayed = false;
-let improCounter = 1; // compteur local d'improvisation
 
+/* Utils */
 function formatTime(totalSeconds) {
     const seconds = Math.max(0, Math.floor(totalSeconds));
     const m = Math.floor(seconds / 60);
@@ -14,12 +12,11 @@ function formatTime(totalSeconds) {
 
 function loadSettings() {
     const saved = localStorage.getItem('impro-settings');
-    if (saved) {
-        try {
-            settings = JSON.parse(saved);
-        } catch {
-            settings = {teamCount: 2, teams: []};
-        }
+    if (!saved) return;
+    try {
+        settings = JSON.parse(saved);
+    } catch {
+        settings = {teamCount: 2, teams: []};
     }
 }
 
@@ -31,7 +28,6 @@ function updateTeamDisplays() {
             el.classList.remove('hidden');
             el.querySelector('.team-header').textContent = info.name || `Équipe ${idx}`;
             el.style.setProperty('--team-color', info.color || '#000');
-            el.style.borderColor = info.color || '#000';
         } else {
             el.classList.add('hidden');
         }
@@ -45,11 +41,9 @@ function updateScore(teamIndex, value) {
 
 function updateCards(teamIndex, value) {
     const cardEls = document.querySelectorAll(`.team-display[data-team-index="${teamIndex}"] .card`);
-    cardEls.forEach((card, idx) => {
-        card.classList.toggle('filled', idx < value);
-    });
+    cardEls.forEach((card, idx) => card.classList.toggle('filled', idx < value));
     const teamEl = document.querySelector(`.team-display[data-team-index="${teamIndex}"]`);
-    teamEl.style.opacity = value >= 3 ? 0.3 : 1;
+    if (teamEl) teamEl.style.opacity = value >= 3 ? 0.3 : 1;
 }
 
 function resetRoundDisplay() {
@@ -57,24 +51,34 @@ function resetRoundDisplay() {
     document.getElementById('display-category').textContent = '—';
     const label = document.getElementById('phase-label');
     label.textContent = '';
-    label.style.color = '#fff';
     document.getElementById('timer-value').textContent = '00:00';
-    alertPlayed = false;
-    endPlayed = false;
-    improCounter = 1; // réinitialise le compteur à chaque reset
+    updateProgressCircle(0, 1); // anneau vide
+    document.getElementById('timer-display').classList.remove('danger');
+}
+
+function updatePhaseLabel(phase) {
+    const label = document.getElementById('phase-label');
+    if (phase === 'prep') {
+        label.textContent = 'Caucus';
+    } else if (phase === 'impro') {
+        label.textContent = 'Impro';
+    } else {
+        label.textContent = '';
+    }
 }
 
 function updateProgressCircle(remaining, total) {
     const circle = document.querySelector('.progress-ring .progress');
-    const radius = 135;
+    const radius = 180;
     const circumference = 2 * Math.PI * radius;
-    const safeRemaining = Math.max(0, remaining);
-    const offset = circumference - (safeRemaining / total) * circumference;
+    const safeTotal = Math.max(1, Number(total) || 0);
+    const safeRemaining = Math.max(0, Number(remaining) || 0);
+    const offset = circumference - (safeRemaining / safeTotal) * circumference;
     circle.style.strokeDashoffset = offset;
 }
 
+/* Init */
 document.addEventListener('DOMContentLoaded', () => {
-
     loadSettings();
     updateTeamDisplays();
 
@@ -97,45 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
 
             case 'roundStart':
-                document.getElementById('display-theme').textContent = payload.theme;
-                document.getElementById('display-category').textContent = payload.category;
-                updateProgressCircle(0, payload.total || 60);
-                alertPlayed = false;
-                endPlayed = false;
-                improCounter = 1; // recommence à Impro 1 à chaque manche
-                break;
-
-            case 'turnStart':
-                const phase = document.getElementById('phase-label');
-                phase.textContent = `Impro ${improCounter}`;
-                improCounter++;
-                alertPlayed = false;
-                endPlayed = false;
+                document.getElementById('display-theme').textContent = payload?.theme || '—';
+                document.getElementById('display-category').textContent = payload?.category || '—';
                 break;
 
             case 'timer':
-                const total = payload.total || 60;
-                const remaining = Math.floor(payload.remaining);
-
-                if (remaining === total) {
-                    alertPlayed = false;
-                    endPlayed = false;
-                }
-
-                if (payload.phase === 'prep') {
-                    const label = document.getElementById('phase-label');
-                    label.textContent = 'Caucus';
-                    label.style.color = '#fff';
-                }
-
-                updateProgressCircle(remaining, total);
-                document.getElementById('timer-value').textContent = formatTime(remaining);
+                updatePhaseLabel(payload.phase);
+                updateProgressCircle(payload.remaining, payload.total || 60);
+                document.getElementById('timer-value').textContent = formatTime(payload.remaining);
+                const isDanger = Number(payload.remaining) <= 10 && Number(payload.remaining) > 0;
+                document.getElementById('timer-display').classList.toggle('danger', isDanger);
                 break;
 
-            case 'roundEnd':
-                document.getElementById('phase-label').textContent = 'Fin de la manche';
-                alertPlayed = false;
-                endPlayed = false;
+            case 'timerStop':
+                // Affichage conservé; rien d’automatique en pause.
                 break;
 
             case 'roundReset':

@@ -1,94 +1,22 @@
-/* Reset & Global Layout */
+/* Reset & base */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-body, html {
+html, body {
     height: 100vh;
-    color: white;
+    color: #fff;
     font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.stars::before {
-    content: '';
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: white;
-    box-shadow: 20vw 10vh #ffffff,
-    50vw 30vh #ffffcc,
-    70vw 20vh #ffffff,
-    90vw 70vh #ffffcc,
-    10vw 80vh #ffffff,
-    25vw 60vh #ffffcc,
-    40vw 90vh #ffffff,
-    65vw 50vh #ffffcc,
-    85vw 40vh #ffffff,
-    95vw 95vh #ffffcc,
-    15vw 15vh #ffffff,
-    35vw 25vh #ffffcc,
-    55vw 45vh #ffffff,
-    75vw 10vh #ffffcc,
-    30vw 70vh #ffffff,
-    60vw 80vh #ffffcc,
-    80vw 60vh #ffffff,
-    20vw 90vh #ffffcc,
-    10vw 50vh #ffffff,
-    45vw 15vh #ffffcc,
-    5vw 5vh #ffffff,
-    95vw 5vh #ffffcc,
-    5vw 95vh #ffffff,
-    95vw 85vh #ffffcc,
-    33vw 33vh #ffffff,
-    66vw 66vh #ffffcc,
-    12vw 42vh #ffffff,
-    78vw 22vh #ffffcc,
-    88vw 18vh #ffffff,
-    38vw 58vh #ffffcc,
-    48vw 88vh #ffffff,
-    28vw 18vh #ffffcc,
-    68vw 78vh #ffffff,
-    18vw 38vh #ffffcc,
-    58vw 68vh #ffffff,
-    8vw 28vh #ffffcc,
-    98vw 48vh #ffffff,
-    42vw 72vh #ffffcc,
-    72vw 12vh #ffffff,
-    22vw 62vh #ffffcc;
-    animation: twinkle 2s infinite alternate ease-in-out;
-}
-
-
-@keyframes twinkle {
-    0% {
-        opacity: 0.2;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-
 body {
     width: 100vw;
-    margin: 0;
-    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000 100%);
     background-size: cover;
     overflow: hidden;
     position: relative;
@@ -99,105 +27,80 @@ main, .logo-container {
     z-index: 1;
 }
 
-
 main {
     width: 100%;
     height: 100vh;
-    background-color: transparent;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background: transparent;
 }
 
-
-/* Page Title */
-h1 {
-    text-align: center;
-    font-size: 3rem;
-    color: #f1f1f1;
-    margin-bottom: 1rem;
+/* Logo */
+.logo-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    width: 15%;
 }
 
-/* Teams Display */
-#teams-display {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 2rem;
+.logo-container img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
-.team-display {
-    flex: 1 1 20%;
-    min-width: 200px;
-    background-color: #222;
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+/* Fond étoiles */
+.stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.team-name {
-    font-size: 1.8rem;
-    margin-bottom: 0.8rem;
+.stars::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 20vw 10vh #fff, 50vw 30vh #fffc, 70vw 20vh #fff, 90vw 70vh #fffc,
+    10vw 80vh #fff, 25vw 60vh #fffc, 40vw 90vh #fff, 65vw 50vh #fffc,
+    85vw 40vh #fff, 95vw 95vh #fffc, 15vw 15vh #fff, 35vw 25vh #fffc,
+    55vw 45vh #fff, 75vw 10vh #fffc, 30vw 70vh #fff, 60vw 80vh #fffc,
+    80vw 60vh #fff, 20vw 90vh #fffc, 10vw 50vh #fff, 45vw 15vh #fffc,
+    5vw 5vh #fff, 95vw 5vh #fffc, 5vw 95vh #fff, 95vw 85vh #fffc,
+    33vw 33vh #fff, 66vw 66vh #fffc, 12vw 42vh #fff, 78vw 22vh #fffc,
+    88vw 18vh #fff, 38vw 58vh #fffc, 48vw 88vh #fff, 28vw 18vh #fffc,
+    68vw 78vh #fff, 18vw 38vh #fffc, 58vw 68vh #fff, 8vw 28vh #fffc,
+    98vw 48vh #fff, 42vw 72vh #fffc, 72vw 12vh #fff, 22vw 62vh #fffc;
+    animation: twinkle 2s infinite alternate ease-in-out;
 }
 
-.team-score,
-.team-cards {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #4dd0e1;
+@keyframes twinkle {
+    0% {
+        opacity: .2
+    }
+    100% {
+        opacity: 1
+    }
 }
 
-/* Round Info */
-#round-info {
-    text-align: center;
-    margin: 2rem 0;
-}
-
-#round-info h3 {
-    font-size: 3.2rem;
-    margin: 0.5rem 0;
-    font-weight: normal;
-}
-
-/* Timer Section */
+/* Timer */
 #timer-display {
     text-align: center;
 }
 
-#phase-label {
-    font-size: 2rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-}
-
-/* Hidden class */
-.hidden {
-    display: none;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .team-display {
-        flex: 1 1 45%;
-    }
-
-    #round-info h3,
-    .team-name {
-        font-size: 1.5rem;
-    }
-
-    #timer-value {
-        font-size: 3rem;
-    }
-}
-
 .circle-timer {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 2rem;
+    width: 400px;
+    height: 400px;
 }
 
 .progress-ring {
@@ -208,18 +111,26 @@ h1 {
 
 .progress-ring .background {
     fill: none;
-    stroke: #fed32e; /* Jaune plein */
+    stroke: #fed32e;
     stroke-width: 30;
 }
 
 .progress-ring .progress {
     fill: none;
-    stroke: white;
+    stroke: #fff;
     stroke-width: 30;
     stroke-linecap: round;
-    stroke-dasharray: 848; /* 2πr = 2*π*45 ≈ 283 */
-    stroke-dashoffset: 848;
-    transition: stroke-dashoffset 0.2s linear;
+    stroke-dasharray: 1131; /* 2πr avec r=180 */
+    stroke-dashoffset: 1131;
+    transition: stroke-dashoffset .2s linear;
+}
+
+
+#timer-display.danger .progress-ring .background {
+    stroke: #ff3b30;
+}
+#timer-display.danger .timer-text {
+    color: #ff3b30;
 }
 
 .timer-text {
@@ -232,57 +143,91 @@ h1 {
     color: #fed32e;
 }
 
+#phase-label {
+    color: #fed32e;
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+}
+
+/* Infos manche */
+#round-info {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+#round-info h3 {
+    font-size: 3.2rem;
+    margin: .5rem 0;
+    font-weight: normal;
+}
+
+#display-theme, #display-category {
+    color: #fed32e;
+    font-family: "Playfair Display", serif;
+    font-weight: bold;
+}
+
+/* Équipes */
 #teams-display {
     display: flex;
     justify-content: space-around;
-    margin-top: 2rem;
     gap: 1rem;
     flex-wrap: wrap;
+    margin-top: 2rem;
 }
 
 .team-display {
     width: 250px;
-    border: 2px solid;
-    border-radius: 10px;
-    background-color: white;
     text-align: center;
     padding: 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    background: transparent;
 }
 
 .team-header {
     font-weight: bold;
-    padding: 0.8rem;
-    font-size: 1.2rem;
-    color: white;
-    background-color: var(--team-color, #000); /* sera défini dynamiquement */
+    padding: .8rem;
+    font-size: 3rem;
+    color: var(--team-color, #fff);
     font-family: "Playfair Display", serif;
 }
 
 .team-score-display {
-    padding: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
 }
 
 .team-score-display .score {
-    font-size: 3rem;
+    font-size: 10rem;
     font-weight: bold;
-    margin-bottom: 1rem;
-    color: #000;
+    color: #fff;
+    background-color: var(--team-color, #000);
+    border-radius: 200px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cards {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
 }
 
 .card {
-    width: 20px;
-    height: 20px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     border: 2px solid;
-    background-color: transparent;
+    background: transparent;
     color: var(--team-color, #000);
 }
 
@@ -290,27 +235,22 @@ h1 {
     background-color: currentColor;
 }
 
-#phase-label {
-    color: #fed32e;
+/* Utils */
+.hidden {
+    display: none;
 }
 
-#display-theme,
-#display-category {
-    color: #fed32e;
-    font-family: "Playfair Display", serif;
-    font-weight: bold;
-}
+/* Responsive */
+@media (max-width: 768px) {
+    .team-display {
+        width: 45%;
+    }
 
-.logo-container {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 1000;
-    width: 15%;
-}
+    #round-info h3 {
+        font-size: 1.6rem;
+    }
 
-.logo-container img {
-    height: auto;
-    width: 100%;
-    object-fit: contain;
+    .timer-text {
+        font-size: 2.4rem;
+    }
 }

@@ -20,8 +20,6 @@
     <section id="round-config">
         <h2>Paramètres de la manche</h2>
 
-        <p style="margin-bottom: 1rem; font-weight: bold; color: #fed32e;">Mode de jeu : Tour par tour</p>
-
         <div class="twoColumns">
             <div class="field-group">
                 <label for="theme">Thème :</label>
@@ -35,26 +33,35 @@
 
         <div class="twoColumns">
             <div class="field-group">
-                <label for="prep-time">Caucus (s) :</label>
-                <input type="number" id="prep-time" value="30" min="0"/>
+                <label for="prep-min">Caucus :</label>
+                <div class="time-fields">
+                    <input type="number" id="prep-min" min="0" value="1" aria-label="Minutes de caucus">
+                    <span>min</span>
+                    <input type="number" id="prep-sec" min="0" max="59" value="0" aria-label="Secondes de caucus">
+                    <span>s</span>
+                </div>
             </div>
+
             <div class="field-group">
-                <label for="impro-time">Impro (s) :</label>
-                <input type="number" id="impro-time" value="60" min="0"/>
+                <label for="impro-min">Impro :</label>
+                <div class="time-fields">
+                    <input type="number" id="impro-min" min="0" value="1" aria-label="Minutes d'impro">
+                    <span>min</span>
+                    <input type="number" id="impro-sec" min="0" max="59" value="0" aria-label="Secondes d'impro">
+                    <span>s</span>
+                </div>
             </div>
         </div>
 
         <div class="buttons_lists">
-            <button id="start-round">Lancer la Manche</button>
-            <button id="start-impro" class="hidden">Commencer l’impro</button>
-            <button id="next-team" class="hidden">Passer à l’équipe suivante</button>
-            <button id="reset-round" class="hidden">Relancer une Manche</button>
-            <button id="cancel-round" class="hidden">Annuler la Manche</button>
+            <button id="start-round">Démarrer le caucus</button>
+            <button id="start-impro">Démarrer l’impro</button>
+            <button id="reset-round">Réinitialiser l’affichage</button>
         </div>
     </section>
 
     <section id="teams-controls" class="teams-controls">
-        <!-- Équipes 1 à 4 -->
+        <!-- Équipe 1 -->
         <div class="team-control" data-team-index="1">
             <h3 class="team-name">Équipe 1</h3>
             <div>
@@ -75,6 +82,7 @@
             </div>
         </div>
 
+        <!-- Équipe 2 -->
         <div class="team-control" data-team-index="2">
             <h3 class="team-name">Équipe 2</h3>
             <div>
@@ -95,6 +103,7 @@
             </div>
         </div>
 
+        <!-- Équipe 3 -->
         <div class="team-control hidden" data-team-index="3">
             <h3 class="team-name">Équipe 3</h3>
             <div>
@@ -115,6 +124,7 @@
             </div>
         </div>
 
+        <!-- Équipe 4 -->
         <div class="team-control hidden" data-team-index="4">
             <h3 class="team-name">Équipe 4</h3>
             <div>
