@@ -1,73 +1,80 @@
-// projector.js
-
 const channel = new BroadcastChannel('impro-game');
 
 let settings = {teamCount: 2, teams: []};
+let alertPlayed = false;
+let endPlayed = false;
+let improCounter = 1; // compteur local d'improvisation
 
-// Helper: format seconds as "MM:SS"
 function formatTime(totalSeconds) {
-    const m = Math.floor(totalSeconds / 60);
-    const s = totalSeconds % 60;
+    const seconds = Math.max(0, Math.floor(totalSeconds));
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
     return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
-// Load team settings from localStorage (fallback to defaults)
 function loadSettings() {
     const saved = localStorage.getItem('impro-settings');
     if (saved) {
         try {
             settings = JSON.parse(saved);
         } catch {
-            console.error('Invalid settings in storage, using defaults');
             settings = {teamCount: 2, teams: []};
         }
     }
 }
 
-// Show/hide team blocks and update names & colors
 function updateTeamDisplays() {
     document.querySelectorAll('.team-display').forEach(el => {
         const idx = Number(el.dataset.teamIndex);
+        const info = settings.teams[idx - 1] || {};
         if (idx <= settings.teamCount) {
             el.classList.remove('hidden');
-            const info = settings.teams[idx - 1] || {};
-            const nameEl = el.querySelector('.team-name');
-            nameEl.textContent = info.name || `Équipe ${idx}`;
-            nameEl.style.color = info.color || '#000';
+            el.querySelector('.team-header').textContent = info.name || `Équipe ${idx}`;
+            el.style.setProperty('--team-color', info.color || '#000');
+            el.style.borderColor = info.color || '#000';
         } else {
             el.classList.add('hidden');
         }
     });
 }
 
-// Update score display for one team
 function updateScore(teamIndex, value) {
-    const el = document.querySelector(`.team-score[data-team-index="${teamIndex}"]`);
+    const el = document.querySelector(`.team-display[data-team-index="${teamIndex}"] .score`);
     if (el) el.textContent = value;
 }
 
-// Update cards display for one team
 function updateCards(teamIndex, value) {
-    const el = document.querySelector(`.team-cards[data-team-index="${teamIndex}"]`);
-    if (el) el.textContent = value;
+    const cardEls = document.querySelectorAll(`.team-display[data-team-index="${teamIndex}"] .card`);
+    cardEls.forEach((card, idx) => {
+        card.classList.toggle('filled', idx < value);
+    });
+    const teamEl = document.querySelector(`.team-display[data-team-index="${teamIndex}"]`);
+    teamEl.style.opacity = value >= 3 ? 0.3 : 1;
 }
 
-// Reset round info: theme, category, timers, scores & cards
 function resetRoundDisplay() {
     document.getElementById('display-theme').textContent = '—';
     document.getElementById('display-category').textContent = '—';
     const label = document.getElementById('phase-label');
-    label.textContent = 'Phase : —';
+    label.textContent = '';
     label.style.color = '#fff';
     document.getElementById('timer-value').textContent = '00:00';
-    for (let i = 1; i <= settings.teamCount; i++) {
-        updateScore(i, 0);
-        updateCards(i, 0);
-    }
+    alertPlayed = false;
+    endPlayed = false;
+    improCounter = 1; // réinitialise le compteur à chaque reset
+}
+
+function updateProgressCircle(remaining, total) {
+    const circle = document.querySelector('.progress-ring .progress');
+    const radius = 135;
+    const circumference = 2 * Math.PI * radius;
+    const safeRemaining = Math.max(0, remaining);
+    const offset = circumference - (safeRemaining / total) * circumference;
+    circle.style.strokeDashoffset = offset;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial load
+
     loadSettings();
     updateTeamDisplays();
 
@@ -92,27 +99,43 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'roundStart':
                 document.getElementById('display-theme').textContent = payload.theme;
                 document.getElementById('display-category').textContent = payload.category;
+                updateProgressCircle(0, payload.total || 60);
+                alertPlayed = false;
+                endPlayed = false;
+                improCounter = 1; // recommence à Impro 1 à chaque manche
                 break;
 
             case 'turnStart':
-                const name = payload.teamName || `Équipe ${payload.teamIndex}`;
-                const color = payload.teamColor || '#fff';
                 const phase = document.getElementById('phase-label');
-                phase.textContent = `Phase : Impro – ${name}`;
-                phase.style.color = color;
+                phase.textContent = `Impro ${improCounter}`;
+                improCounter++;
+                alertPlayed = false;
+                endPlayed = false;
                 break;
 
             case 'timer':
-                if (payload.phase === 'prep') {
-                    const phaseLabel = document.getElementById('phase-label');
-                    phaseLabel.textContent = 'Phase : Préparation';
-                    phaseLabel.style.color = '#fff';
+                const total = payload.total || 60;
+                const remaining = Math.floor(payload.remaining);
+
+                if (remaining === total) {
+                    alertPlayed = false;
+                    endPlayed = false;
                 }
-                document.getElementById('timer-value').textContent = formatTime(payload.remaining);
+
+                if (payload.phase === 'prep') {
+                    const label = document.getElementById('phase-label');
+                    label.textContent = 'Caucus';
+                    label.style.color = '#fff';
+                }
+
+                updateProgressCircle(remaining, total);
+                document.getElementById('timer-value').textContent = formatTime(remaining);
                 break;
 
             case 'roundEnd':
-                document.getElementById('phase-label').textContent = 'Phase : Terminée';
+                document.getElementById('phase-label').textContent = 'Fin de la manche';
+                alertPlayed = false;
+                endPlayed = false;
                 break;
 
             case 'roundReset':

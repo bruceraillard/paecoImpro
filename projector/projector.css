@@ -7,22 +7,109 @@
 
 body, html {
     height: 100vh;
-    background-color: #111;
     color: white;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stars::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 20vw 10vh #ffffff,
+    50vw 30vh #ffffcc,
+    70vw 20vh #ffffff,
+    90vw 70vh #ffffcc,
+    10vw 80vh #ffffff,
+    25vw 60vh #ffffcc,
+    40vw 90vh #ffffff,
+    65vw 50vh #ffffcc,
+    85vw 40vh #ffffff,
+    95vw 95vh #ffffcc,
+    15vw 15vh #ffffff,
+    35vw 25vh #ffffcc,
+    55vw 45vh #ffffff,
+    75vw 10vh #ffffcc,
+    30vw 70vh #ffffff,
+    60vw 80vh #ffffcc,
+    80vw 60vh #ffffff,
+    20vw 90vh #ffffcc,
+    10vw 50vh #ffffff,
+    45vw 15vh #ffffcc,
+    5vw 5vh #ffffff,
+    95vw 5vh #ffffcc,
+    5vw 95vh #ffffff,
+    95vw 85vh #ffffcc,
+    33vw 33vh #ffffff,
+    66vw 66vh #ffffcc,
+    12vw 42vh #ffffff,
+    78vw 22vh #ffffcc,
+    88vw 18vh #ffffff,
+    38vw 58vh #ffffcc,
+    48vw 88vh #ffffff,
+    28vw 18vh #ffffcc,
+    68vw 78vh #ffffff,
+    18vw 38vh #ffffcc,
+    58vw 68vh #ffffff,
+    8vw 28vh #ffffcc,
+    98vw 48vh #ffffff,
+    42vw 72vh #ffffcc,
+    72vw 12vh #ffffff,
+    22vw 62vh #ffffcc;
+    animation: twinkle 2s infinite alternate ease-in-out;
+}
+
+
+@keyframes twinkle {
+    0% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+body {
+    width: 100vw;
+    margin: 0;
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
+    background-size: cover;
+    overflow: hidden;
+    position: relative;
+}
+
+main, .logo-container {
+    position: relative;
+    z-index: 1;
+}
+
+
 main {
     width: 100%;
     height: 100vh;
+    background-color: transparent;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
+
 
 /* Page Title */
 h1 {
@@ -69,8 +156,9 @@ h1 {
 }
 
 #round-info h3 {
-    font-size: 1.8rem;
+    font-size: 3.2rem;
     margin: 0.5rem 0;
+    font-weight: normal;
 }
 
 /* Timer Section */
@@ -82,12 +170,6 @@ h1 {
     font-size: 2rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-}
-
-#timer-value {
-    font-size: 4rem;
-    font-weight: bold;
-    color: #00e676;
 }
 
 /* Hidden class */
@@ -109,4 +191,126 @@ h1 {
     #timer-value {
         font-size: 3rem;
     }
+}
+
+.circle-timer {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: auto;
+}
+
+.progress-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.progress-ring .background {
+    fill: none;
+    stroke: #fed32e; /* Jaune plein */
+    stroke-width: 30;
+}
+
+.progress-ring .progress {
+    fill: none;
+    stroke: white;
+    stroke-width: 30;
+    stroke-linecap: round;
+    stroke-dasharray: 848; /* 2πr = 2*π*45 ≈ 283 */
+    stroke-dashoffset: 848;
+    transition: stroke-dashoffset 0.2s linear;
+}
+
+.timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: bold;
+    color: #fed32e;
+}
+
+#teams-display {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.team-display {
+    width: 250px;
+    border: 2px solid;
+    border-radius: 10px;
+    background-color: white;
+    text-align: center;
+    padding: 0;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.team-header {
+    font-weight: bold;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    color: white;
+    background-color: var(--team-color, #000); /* sera défini dynamiquement */
+    font-family: "Playfair Display", serif;
+}
+
+.team-score-display {
+    padding: 1.5rem 0;
+}
+
+.team-score-display .score {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.card {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid;
+    background-color: transparent;
+    color: var(--team-color, #000);
+}
+
+.card.filled {
+    background-color: currentColor;
+}
+
+#phase-label {
+    color: #fed32e;
+}
+
+#display-theme,
+#display-category {
+    color: #fed32e;
+    font-family: "Playfair Display", serif;
+    font-weight: bold;
+}
+
+.logo-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    width: 15%;
+}
+
+.logo-container img {
+    height: auto;
+    width: 100%;
+    object-fit: contain;
 }

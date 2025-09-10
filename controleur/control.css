@@ -1,26 +1,21 @@
-/* General Layout */
+/* === Global Layout === */
 body {
     margin: 0;
-    padding: 2rem;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+    font-family: 'Montserrat', sans-serif;
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
+    color: #fff;
+    height: 100vh;
 }
 
-main {
-    max-width: 900px;
-    margin: auto;
-}
-
-/* Headings */
 h1, h2 {
     text-align: center;
-    color: #222;
 }
 
 h1 {
     font-size: 2.4rem;
     margin-bottom: 2rem;
+    color: #fed32e;
+    font-family: "Playfair Display", serif;
 }
 
 h2 {
@@ -28,23 +23,50 @@ h2 {
     margin-bottom: 1rem;
 }
 
-h3.team-name {
-    margin-bottom: 0.5rem;
-    font-size: 1.4rem;
+/* === Navigation Tabs === */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #40350c;
+    border-bottom: 2px solid #fff;
 }
 
-/* Sections */
-section {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+.main-nav button {
+    background: transparent;
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
 }
 
-/* Input Groups */
+.main-nav button:hover {
+    border-bottom: 3px solid #fff;
+}
+
+.main-nav button.active {
+    border-bottom: 3px solid #fed32e;
+}
+
+/* === Round Configuration Section === */
+#round-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 3rem;
+    margin: 2rem 0 3rem;
+    border-top: 2px dashed #fed32e;
+    border-bottom: 2px dashed #fed32e;
+}
+
 .field-group {
     margin-bottom: 1.2rem;
+    text-align: center;
 }
 
 .field-group label {
@@ -63,87 +85,216 @@ input[type="number"] {
     box-sizing: border-box;
 }
 
-input[type="radio"] {
-    margin-right: 0.5rem;
+/* Horizontal dual column layout */
+.twoColumns {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+    width: 100%;
+    max-width: 800px;
 }
 
-/* Buttons */
+/* Mode switch (Mixte / Tour par tour) */
+.toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    font-weight: 600;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    height: 52px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #fed32e;
+    transition: 0.4s;
+    border-radius: 26px;
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 40px;
+    width: 40px;
+    left: 6px;
+    bottom: 6px;
+    background-color: #ffffff;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider::before {
+    transform: translateX(48px);
+}
+
+/* Round action buttons */
+.buttons_lists {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
 button {
-    background-color: #007bff;
-    color: white;
+    font-family: "Playfair Display", serif;
+    background-color: #fed32e;
+    color: #000;
     border: none;
     font-size: 1rem;
-    padding: 0.6rem 1rem;
-    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #40350c;
+    color: #fff;
 }
 
 button.hidden {
     display: none;
 }
 
-/* Team Controls */
-.team-control {
+/* === Team Score / Cards Controls === */
+.teams-controls {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
     margin-bottom: 2rem;
-    border-top: 1px solid #eee;
-    padding-top: 1rem;
+}
+
+.team-control {
+    width: 20%;
+    min-width: 200px;
+    border-radius: 8px;
+    text-align: center;
+    background-color: white;
+    padding-bottom: 1rem;
+}
+
+.team-name {
+    background-color: #999;
+    font-family: "Playfair Display", serif;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    margin: 0;
 }
 
 .score-control,
 .cards-control {
     display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
     margin-top: 0.5rem;
-}
-
-.score-control span,
-.cards-control span {
-    margin-right: 1rem;
-    font-weight: 500;
-    font-size: 1.1rem;
 }
 
 .score-control button,
 .cards-control button {
-    background-color: #28a745;
-    margin-left: 0.5rem;
-    padding: 0.3rem 0.8rem;
+    background: transparent;
+    border: none;
+    color: #000;
     font-weight: bold;
+    font-size: 2rem;
+}
+
+.score-control span,
+.cards-control span {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 1rem;
+    color: #000;
+}
+
+/* === Team Settings Page === */
+#team-count-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#team-count-section select {
     font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
-.score-remove,
-.cards-remove {
-    background-color: #dc3545;
+.teams-config-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.score-remove:hover,
-.cards-remove:hover {
-    background-color: #a71d2a;
+.team-config {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 20%;
+    min-width: 200px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+    text-align: center;
 }
 
-.score-add:hover,
-.cards-add:hover {
-    background-color: #1c7c31;
+.team-config h2 {
+    font-family: "Playfair Display", serif;
+    background-color: #fed32e;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
-/* Responsive */
-@media screen and (max-width: 600px) {
-    .score-control,
-    .cards-control {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .score-control button,
-    .cards-control button {
-        margin-left: 0;
-        margin-top: 0.4rem;
-    }
+.team-config input[type="text"],
+.team-config input[type="color"] {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 0.3rem;
 }
+
+.hidden {
+    display: none;
+}
+
+#open-projector-btn.top-right {
+    position: absolute;
+    right: 10px;
+    padding: 10px 15px;
+    background-color: #000;
+    color: #fed32e;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 999;
+    transition: background-color 0.2s;
+}
+
+#open-projector-btn.top-right:hover {
+    background-color: #444;
+}
+

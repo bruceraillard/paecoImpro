@@ -4,53 +4,87 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Projecteur – Impro Multijoueur</title>
+    <link rel="stylesheet" href="../assets/fonts/fonts.css"/>
     <link rel="stylesheet" href="projector.css"/>
 </head>
 <body>
-<main>
-    <h1>Projecteur</h1>
 
-    <!-- 1. Affichage des équipes -->
-    <section id="teams-display">
-        <!-- Équipe 1 -->
-        <div class="team-display" data-team-index="1">
-            <h2 class="team-name">Équipe 1</h2>
-            <p>Score : <span class="team-score" data-team-index="1">0</span></p>
-            <p>Cartons : <span class="team-cards" data-team-index="1">0</span></p>
+<div class="logo-container">
+    <img src="../assets/media/logo.webp" alt="Logo du jeu"/>
+</div>
+<div class="stars"></div>
+<main>
+
+    <!-- Affichage du timer central -->
+    <section id="timer-display">
+        <div class="circle-timer">
+            <svg viewBox="0 0 300 300" class="progress-ring">
+                <circle class="background" cx="150" cy="150" r="135"/>
+                <circle class="progress" cx="150" cy="150" r="135"/>
+            </svg>
+            <div class="timer-text" id="timer-value">00:00</div>
         </div>
-        <!-- Équipe 2 -->
-        <div class="team-display" data-team-index="2">
-            <h2 class="team-name">Équipe 2</h2>
-            <p>Score : <span class="team-score" data-team-index="2">0</span></p>
-            <p>Cartons : <span class="team-cards" data-team-index="2">0</span></p>
-        </div>
-        <!-- Équipe 3 (masquée si non utilisée) -->
-        <div class="team-display hidden" data-team-index="3">
-            <h2 class="team-name">Équipe 3</h2>
-            <p>Score : <span class="team-score" data-team-index="3">0</span></p>
-            <p>Cartons : <span class="team-cards" data-team-index="3">0</span></p>
-        </div>
-        <!-- Équipe 4 (masquée si non utilisée) -->
-        <div class="team-display hidden" data-team-index="4">
-            <h2 class="team-name">Équipe 4</h2>
-            <p>Score : <span class="team-score" data-team-index="4">0</span></p>
-            <p>Cartons : <span class="team-cards" data-team-index="4">0</span></p>
-        </div>
+        <p id="phase-label"></p>
     </section>
 
-    <!-- 2. Affichage des paramètres de la manche -->
+    <!-- Affichage des infos de la manche -->
     <section id="round-info">
         <h3>Thème : <span id="display-theme">—</span></h3>
         <h3>Catégorie : <span id="display-category">—</span></h3>
     </section>
 
-    <!-- 3. Affichage des timers -->
-    <section id="timer-display">
-        <p id="phase-label">Phase : —</p>
-        <p id="timer-value">00:00</p>
-    </section>
-</main>
+    <!-- Affichage des équipes -->
+    <section id="teams-display">
+        <div class="team-display" data-team-index="1">
+            <div class="team-header">Équipe 1</div>
+            <div class="team-score-display">
+                <div class="score">0</div>
+                <div class="cards">
+                    <span class="card" data-index="1"></span>
+                    <span class="card" data-index="2"></span>
+                    <span class="card" data-index="3"></span>
+                </div>
+            </div>
+        </div>
 
+        <div class="team-display" data-team-index="2">
+            <div class="team-header">Équipe 2</div>
+            <div class="team-score-display">
+                <div class="score">0</div>
+                <div class="cards">
+                    <span class="card" data-index="1"></span>
+                    <span class="card" data-index="2"></span>
+                    <span class="card" data-index="3"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-display hidden" data-team-index="3">
+            <div class="team-header">Équipe 3</div>
+            <div class="team-score-display">
+                <div class="score">0</div>
+                <div class="cards">
+                    <span class="card" data-index="1"></span>
+                    <span class="card" data-index="2"></span>
+                    <span class="card" data-index="3"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-display hidden" data-team-index="4">
+            <div class="team-header">Équipe 4</div>
+            <div class="team-score-display">
+                <div class="score">0</div>
+                <div class="cards">
+                    <span class="card" data-index="1"></span>
+                    <span class="card" data-index="2"></span>
+                    <span class="card" data-index="3"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
 <script src="projector.js"></script>
 </body>
 </html>

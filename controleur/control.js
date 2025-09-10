@@ -1,25 +1,40 @@
 const channel = new BroadcastChannel('impro-game');
-let settings = { teamCount: 2, teams: [] };
+
+// --- DEFAULTS ---
+const DEFAULT_SETTINGS = {
+    teamCount: 2,
+    teams: [
+        {name: '', color: '#e6194B'},
+        {name: '', color: '#3cb44b'},
+        {name: '', color: '#ffe119'},
+        {name: '', color: '#4363d8'}
+    ]
+};
+
+let settings = {...DEFAULT_SETTINGS};
 let scores = [], cards = [];
 let currentTeam = 1;
 let prepInterval = null, improInterval = null;
 
-// --- Chargement des settings ---
+// --- SETTINGS LOGIC ---
 function loadSettings() {
-    try {
-        const raw = localStorage.getItem('impro-settings');
-        if (raw) settings = JSON.parse(raw);
-    } catch {
-        settings = { teamCount: 2, teams: [] };
-    }
+    const saved = localStorage.getItem('impro-settings');
+    settings = saved ? JSON.parse(saved) : {...DEFAULT_SETTINGS};
 }
 
-// --- Broadcast helper ---
-function broadcast(type, payload = {}) {
-    channel.postMessage({ type, payload });
+function saveSettings() {
+    localStorage.setItem('impro-settings', JSON.stringify(settings));
+    channel.postMessage({type: 'settingsUpdate', payload: settings});
+    updateTeamControls();
 }
 
-// --- UI updates ---
+function updateTeamConfigs() {
+    document.querySelectorAll('.team-config').forEach(container => {
+        const idx = Number(container.dataset.teamIndex);
+        container.classList.toggle('hidden', idx > settings.teamCount);
+    });
+}
+
 function updateTeamControls() {
     document.querySelectorAll('.team-control').forEach(el => {
         const i = +el.dataset.teamIndex;
@@ -28,18 +43,14 @@ function updateTeamControls() {
             const info = settings.teams[i - 1] || {};
             const nameEl = el.querySelector('.team-name');
             nameEl.textContent = info.name || `Équipe ${i}`;
-            nameEl.style.color = info.color || '#fff';
+            nameEl.style.color = '#fff';
+            nameEl.style.backgroundColor = info.color || '#000';
+            el.style.border = `3px solid ${info.color || '#000'}`;
+            el.querySelectorAll('button').forEach(btn => btn.style.color = info.color);
         } else {
             el.classList.add('hidden');
         }
     });
-}
-
-function resetScoresAndCards() {
-    scores = Array(settings.teamCount).fill(0);
-    cards = Array(settings.teamCount).fill(0);
-    updateScoreUI();
-    updateCardsUI();
 }
 
 function updateScoreUI() {
@@ -56,47 +67,51 @@ function updateCardsUI() {
     });
 }
 
-// --- Timer avec précision améliorée ---
+function broadcast(type, payload = {}) {
+    channel.postMessage({type, payload});
+}
+
 function runTimer(duration, phase, onComplete, teamIndex = null) {
-    const endTime = Date.now() + duration * 1000;
-    let lastSent = duration;
+    const start = Date.now();
+    const total = duration;
+    let stopped = false;
 
-    broadcast('timer', { phase, remaining: lastSent, ...(teamIndex ? { teamIndex } : {}) });
-
-    const id = setInterval(() => {
+    function tick() {
+        if (stopped) return;
         const now = Date.now();
-        const secLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+        const elapsed = Math.floor((now - start) / 1000);
+        const remaining = Math.max(0, total - elapsed);
 
-        if (secLeft !== lastSent) {
-            lastSent = secLeft;
-            broadcast('timer', { phase, remaining: secLeft, ...(teamIndex ? { teamIndex } : {}) });
-        }
+        broadcast('timer', {
+            phase,
+            remaining,
+            total,
+            ...(teamIndex ? {teamIndex} : {})
+        });
 
-        if (secLeft <= 0) {
-            clearInterval(id);
+        if (remaining <= 0) {
             onComplete();
-        }
-    }, 200);
-
-    if (phase === 'prep') prepInterval = id;
-    else improInterval = id;
-}
-
-// --- Phases de jeu ---
-function startPreparation(prepTime, mode, improTime) {
-    runTimer(prepTime, 'prep', () => {
-        if (mode === 'mixte') {
-            startMixtePhase(improTime);
         } else {
-            startTourPhase(1, improTime);
+            setTimeout(tick, 250);
         }
-    });
+    }
+
+    tick();
+
+    const timerObj = {
+        stop: () => {
+            stopped = true;
+        }
+    };
+
+    if (phase === 'prep') prepInterval = timerObj;
+    else improInterval = timerObj;
 }
 
-function startMixtePhase(duration) {
-    runTimer(duration, 'impro', () => {
-        broadcast('roundEnd');
-        document.getElementById('reset-round')?.classList.remove('hidden');
+function startPreparation(prepTime) {
+    runTimer(prepTime, 'prep', () => {
+        document.getElementById('start-impro')?.classList.remove('hidden');
+        document.getElementById('cancel-round')?.classList.add('hidden');
     });
 }
 
@@ -106,14 +121,12 @@ function startTourPhase(teamIdx, duration) {
     broadcast('turnStart', {
         teamIndex: teamIdx,
         teamName: teamInfo.name || `Équipe ${teamIdx}`,
-        teamColor: teamInfo.color || '#ffffff'
+        teamColor: teamInfo.color || '#fff'
     });
-
 
     runTimer(duration, 'impro', () => {
         const nextBtn = document.getElementById('next-team');
         const resetBtn = document.getElementById('reset-round');
-
         if (teamIdx < settings.teamCount) {
             nextBtn?.classList.remove('hidden');
         } else {
@@ -121,105 +134,182 @@ function startTourPhase(teamIdx, duration) {
             resetBtn?.classList.remove('hidden');
             nextBtn?.classList.add('hidden');
         }
+        document.getElementById('cancel-round')?.classList.add('hidden');
+        document.getElementById('start-impro')?.classList.add('hidden');
     }, teamIdx);
 }
 
 function resetRound() {
-    clearInterval(prepInterval);
-    clearInterval(improInterval);
-    resetScoresAndCards();
-    document.getElementById('start-round')?.removeAttribute('disabled');
+    prepInterval?.stop?.();
+    improInterval?.stop?.();
+    document.getElementById('start-round')?.classList.remove('hidden');
     document.getElementById('next-team')?.classList.add('hidden');
     document.getElementById('reset-round')?.classList.add('hidden');
+    document.getElementById('cancel-round')?.classList.add('hidden');
+    document.getElementById('start-impro')?.classList.add('hidden');
     broadcast('roundReset');
 }
 
-// --- Initialisation DOM ---
+// --- DOM BINDING ---
 document.addEventListener('DOMContentLoaded', () => {
+    const teamCountSelect = document.getElementById('team-count');
+    const teamConfigs = document.querySelectorAll('.team-config');
     const startBtn = document.getElementById('start-round');
+    const startImproBtn = document.getElementById('start-impro');
     const nextBtn = document.getElementById('next-team');
     const resetBtn = document.getElementById('reset-round');
+    const cancelBtn = document.getElementById('cancel-round');
+
+    const controlPage = document.getElementById('control-page');
+    const settingsPage = document.getElementById('settings-page');
+    const navControl = document.getElementById('nav-control');
+    const navSettings = document.getElementById('nav-settings');
+
+    navControl?.addEventListener('click', () => {
+        navControl.classList.add('active');
+        navSettings.classList.remove('active');
+        controlPage.classList.remove('hidden');
+        settingsPage.classList.add('hidden');
+    });
+
+    navSettings?.addEventListener('click', () => {
+        navSettings.classList.add('active');
+        navControl.classList.remove('active');
+        controlPage.classList.add('hidden');
+        settingsPage.classList.remove('hidden');
+    });
 
     loadSettings();
-    resetScoresAndCards();
+    scores = Array(settings.teamCount).fill(0);
+    cards = Array(settings.teamCount).fill(0);
     updateTeamControls();
+    updateScoreUI();
+    updateCardsUI();
 
-    channel.onmessage = ({ data }) => {
+    if (teamCountSelect) {
+        teamCountSelect.value = settings.teamCount;
+        teamCountSelect.addEventListener('change', () => {
+            settings.teamCount = Number(teamCountSelect.value);
+            scores = Array(settings.teamCount).fill(0);
+            cards = Array(settings.teamCount).fill(0);
+            updateTeamConfigs();
+            saveSettings();
+        });
+
+        teamConfigs.forEach(container => {
+            const idx = Number(container.dataset.teamIndex) - 1;
+            const nameInput = container.querySelector('input[type="text"]');
+            const colorInput = container.querySelector('input[type="color"]');
+
+            nameInput.value = settings.teams[idx].name;
+            colorInput.value = settings.teams[idx].color;
+
+            nameInput.addEventListener('input', () => {
+                settings.teams[idx].name = nameInput.value;
+                saveSettings();
+            });
+            colorInput.addEventListener('input', () => {
+                settings.teams[idx].color = colorInput.value;
+                saveSettings();
+            });
+        });
+
+        updateTeamConfigs();
+        channel.postMessage({type: 'init', payload: settings});
+    }
+
+    document.querySelectorAll('.score-add').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (i >= 0 && i < scores.length) {
+                scores[i]++;
+                updateScoreUI();
+                broadcast('scoreUpdate', {teamIndex: i + 1, score: scores[i]});
+            }
+        });
+    });
+
+    document.querySelectorAll('.score-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (i >= 0 && i < scores.length && scores[i] > 0) {
+                scores[i]--;
+                updateScoreUI();
+                broadcast('scoreUpdate', {teamIndex: i + 1, score: scores[i]});
+            }
+        });
+    });
+
+    document.querySelectorAll('.cards-add').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (i >= 0 && i < cards.length && cards[i] < 3) {
+                cards[i]++;
+                updateCardsUI();
+                broadcast('cardsUpdate', {teamIndex: i + 1, cards: cards[i]});
+            }
+        });
+    });
+
+    document.querySelectorAll('.cards-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const i = +btn.dataset.teamIndex - 1;
+            if (i >= 0 && i < cards.length && cards[i] > 0) {
+                cards[i]--;
+                updateCardsUI();
+                broadcast('cardsUpdate', {teamIndex: i + 1, cards: cards[i]});
+            }
+        });
+    });
+
+    startBtn?.addEventListener('click', () => {
+        const theme = document.getElementById('theme')?.value;
+        const category = document.getElementById('category')?.value;
+        const prepTime = +document.getElementById('prep-time')?.value;
+
+        broadcast('roundStart', {mode: 'tour', theme, category, total: prepTime});
+
+        startBtn.classList.add('hidden');
+        nextBtn?.classList.add('hidden');
+        resetBtn?.classList.add('hidden');
+        cancelBtn?.classList.remove('hidden');
+        startImproBtn?.classList.add('hidden');
+
+        startPreparation(prepTime);
+    });
+
+    startImproBtn?.addEventListener('click', () => {
+        const improTime = +document.getElementById('impro-time')?.value;
+        startImproBtn.classList.add('hidden');
+        cancelBtn?.classList.remove('hidden');
+        startTourPhase(1, improTime);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+        const nextTeam = currentTeam + 1;
+        if (nextTeam <= settings.teamCount) {
+            nextBtn.classList.add('hidden');
+            startTourPhase(nextTeam, +document.getElementById('impro-time')?.value);
+        }
+    });
+
+    resetBtn?.addEventListener('click', resetRound);
+    cancelBtn?.addEventListener('click', resetRound);
+
+    channel.onmessage = ({data}) => {
         if (data.type === 'init' || data.type === 'settingsUpdate') {
             settings = data.payload;
-            resetScoresAndCards();
+            scores = Array(settings.teamCount).fill(0);
+            cards = Array(settings.teamCount).fill(0);
             updateTeamControls();
+            updateScoreUI();
+            updateCardsUI();
         }
         if (data.type === 'scoreUpdate') updateScoreUI();
         if (data.type === 'cardsUpdate') updateCardsUI();
     };
 
-    // Gestion scores/cartons
-    document.querySelectorAll('.score-add').forEach(btn =>
-        btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            scores[i]++;
-            updateScoreUI();
-            broadcast('scoreUpdate', { teamIndex: i + 1, score: scores[i] });
-        })
-    );
-    document.querySelectorAll('.score-remove').forEach(btn =>
-        btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (scores[i] > 0) {
-                scores[i]--;
-                updateScoreUI();
-                broadcast('scoreUpdate', { teamIndex: i + 1, score: scores[i] });
-            }
-        })
-    );
-    document.querySelectorAll('.cards-add').forEach(btn =>
-        btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (cards[i] < 3) {
-                cards[i]++;
-                updateCardsUI();
-                broadcast('cardsUpdate', { teamIndex: i + 1, cards: cards[i] });
-            }
-        })
-    );
-    document.querySelectorAll('.cards-remove').forEach(btn =>
-        btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (cards[i] > 0) {
-                cards[i]--;
-                updateCardsUI();
-                broadcast('cardsUpdate', { teamIndex: i + 1, cards: cards[i] });
-            }
-        })
-    );
-
-    // Lancement de la manche
-    startBtn?.addEventListener('click', () => {
-        const mode = document.querySelector('input[name="mode"]:checked')?.value;
-        const theme = document.getElementById('theme')?.value;
-        const category = document.getElementById('category')?.value;
-        const prepTime = +document.getElementById('prep-time')?.value;
-        const improTime = +document.getElementById('impro-time')?.value;
-
-        broadcast('roundStart', { mode, theme, category, prepTime, improTime });
-
-        startBtn.setAttribute('disabled', '');
-        nextBtn?.classList.add('hidden');
-        resetBtn?.classList.add('hidden');
-
-        startPreparation(prepTime, mode, improTime);
+    document.getElementById('open-projector-btn')?.addEventListener('click', () => {
+        window.open('../projector/projector.html', '_blank');
     });
-
-    // Passage à l'équipe suivante
-    nextBtn?.addEventListener('click', () => {
-        const nextTeam = currentTeam + 1;
-        if (nextTeam <= settings.teamCount) {
-            nextBtn.classList.add('hidden'); // cache immédiatement
-            startTourPhase(nextTeam, +document.getElementById('impro-time')?.value);
-        }
-    });
-
-    // Réinitialisation
-    resetBtn?.addEventListener('click', resetRound);
 });
