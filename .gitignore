@@ -1,1 +1,24 @@
-.idea
+# --- Dépendances ---
+node_modules/
+
+# --- Sorties de build / packaging ---
+dist/
+
+# Artéfacts courants Electron/Electron-Builder
+*.dmg
+*.exe
+*.msi
+*.pkg
+*.zip
+*.AppImage
+*.deb
+*.rpm
+*.snap
+*.blockmap
+
+# --- Éditeurs ---
+.idea/
+.vscode/
+*.iml
+
+build/icon.iconset/

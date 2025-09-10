@@ -1,0 +1,46 @@
+{
+  "name": "impro-multijoueur",
+  "version": "1.0.0",
+  "description": "Jeu d'impro multijoueur (contrôleur + projecteur) en Electron",
+  "author": "Bruce Raillard",
+  "license": "MIT",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "serve-static": "^1.15.0"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.votreorg.impro",
+    "productName": "Paeco Impro",
+    "files": [
+      "app/**",
+      "main.js",
+      "package.json",
+      "node_modules/**"
+    ],
+    "asar": true,
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icons/icon.icns",
+      "category": "public.app-category.entertainment"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icons/icon.ico"
+    }
+  }
+}
