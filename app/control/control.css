@@ -1,0 +1,255 @@
+/* === Global Layout === */
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000 100%);
+    color: #fff;
+    height: 100vh;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
+    color: #fed32e;
+    font-family: "Playfair Display", serif;
+}
+
+h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+/* === Navigation Tabs === */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #40350c;
+    border-bottom: 2px solid #fff;
+}
+
+.main-nav button {
+    background: transparent;
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: .5rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .2s ease;
+}
+
+.main-nav button:hover {
+    border-bottom: 3px solid #fff;
+}
+
+.main-nav button.active {
+    border-bottom: 3px solid #fed32e;
+}
+
+/* === Round Configuration Section === */
+#round-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 3rem;
+    margin: 2rem 0 3rem;
+    border-top: 2px dashed #fed32e;
+    border-bottom: 2px dashed #fed32e;
+}
+
+.field-group {
+    margin-bottom: 1.2rem;
+    text-align: center;
+}
+
+.field-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: .4rem;
+}
+
+input[type="text"], input[type="number"] {
+    width: 100%;
+    max-width: 360px;
+    padding: .5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Two columns */
+.twoColumns {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.time-fields {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.time-fields input[type="number"] {
+    width: 90px;
+    text-align: center;
+}
+
+/* Round action buttons */
+.buttons_lists {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+button {
+    font-family: "Playfair Display", serif;
+    background-color: #fed32e;
+    color: #000;
+    border: none;
+    font-size: 1rem;
+    padding: .6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+button:hover {
+    background-color: #40350c;
+    color: #fff;
+}
+
+.hidden {
+    display: none;
+}
+
+/* === Team Score / Cards Controls === */
+.teams-controls {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.team-control {
+    width: 20%;
+    min-width: 200px;
+    border-radius: 8px;
+    text-align: center;
+    background-color: #fff;
+    padding-bottom: 1rem;
+}
+
+.team-name {
+    background-color: #999;
+    font-family: "Playfair Display", serif;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: .5rem;
+    margin: 0;
+}
+
+.score-control, .cards-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: .5rem;
+}
+
+.score-control button, .cards-control button {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.score-control span, .cards-control span {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 0 1rem;
+    color: #000;
+}
+
+/* === Team Settings Page === */
+#team-count-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#team-count-section select {
+    font-size: 1rem;
+    padding: .5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.teams-config-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.team-config {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 20%;
+    min-width: 200px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, .15);
+    text-align: center;
+}
+
+.team-config h2 {
+    font-family: "Playfair Display", serif;
+    background-color: #fed32e;
+    color: #fff;
+    padding: .5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    margin: 0 0 1rem;
+}
+
+.team-config input[type="text"], .team-config input[type="color"] {
+    width: 100%;
+    padding: .4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: .3rem;
+}
+
+/* Open projector button */
+#open-projector-btn.top-right {
+    position: absolute;
+    right: 10px;
+    padding: 10px 15px;
+    background-color: #000;
+    color: #fed32e;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 999;
+    transition: background-color .2s;
+}
+
+#open-projector-btn.top-right:hover {
+    background-color: #444;
+}

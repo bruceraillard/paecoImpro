@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Contrôle du Jeu – Impro Multijoueur</title>
+    <link rel="stylesheet" href="../assets/fonts/fonts.css"/>
+    <link rel="stylesheet" href="control.css"/>
+</head>
+<body>
+<nav class="main-nav">
+    <button id="nav-control" class="active">Contrôle</button>
+    <button id="nav-settings">Paramètres</button>
+    <button id="open-projector-btn" class="top-right">Ouvrir le Projecteur</button>
+</nav>
+
+<main id="control-page">
+    <h1>Contrôle du Jeu</h1>
+
+    <section id="round-config">
+        <h2>Paramètres de la manche</h2>
+
+        <div class="twoColumns">
+            <div class="field-group">
+                <label for="theme">Thème :</label>
+                <input type="text" id="theme" placeholder="Ex. : Théâtre d’impro"/>
+            </div>
+            <div class="field-group">
+                <label for="category">Catégorie :</label>
+                <input type="text" id="category" placeholder="Ex. : Comédie"/>
+            </div>
+        </div>
+
+        <div class="twoColumns">
+            <div class="field-group">
+                <label for="prep-min">Caucus :</label>
+                <div class="time-fields">
+                    <input type="number" id="prep-min" min="0" value="1" aria-label="Minutes de caucus">
+                    <span>min</span>
+                    <input type="number" id="prep-sec" min="0" max="59" value="0" aria-label="Secondes de caucus">
+                    <span>s</span>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="impro-min">Impro :</label>
+                <div class="time-fields">
+                    <input type="number" id="impro-min" min="0" value="1" aria-label="Minutes d'impro">
+                    <span>min</span>
+                    <input type="number" id="impro-sec" min="0" max="59" value="0" aria-label="Secondes d'impro">
+                    <span>s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons_lists">
+            <button id="start-round">Démarrer le caucus</button>
+            <button id="start-impro">Démarrer l’impro</button>
+            <button id="reset-round">Réinitialiser l’affichage</button>
+        </div>
+    </section>
+
+    <section id="teams-controls" class="teams-controls">
+        <!-- Équipe 1 -->
+        <div class="team-control" data-team-index="1">
+            <h3 class="team-name">Équipe 1</h3>
+            <div>
+                <h4>Score</h4>
+                <div class="score-control">
+                    <button class="score-remove" data-team-index="1">–</button>
+                    <span class="score-value" data-team-index="1">0</span>
+                    <button class="score-add" data-team-index="1">+</button>
+                </div>
+            </div>
+            <div>
+                <h4>Cartons</h4>
+                <div class="cards-control">
+                    <button class="cards-remove" data-team-index="1">–</button>
+                    <span class="cards-value" data-team-index="1">0</span>
+                    <button class="cards-add" data-team-index="1">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Équipe 2 -->
+        <div class="team-control" data-team-index="2">
+            <h3 class="team-name">Équipe 2</h3>
+            <div>
+                <h4>Score</h4>
+                <div class="score-control">
+                    <button class="score-remove" data-team-index="2">–</button>
+                    <span class="score-value" data-team-index="2">0</span>
+                    <button class="score-add" data-team-index="2">+</button>
+                </div>
+            </div>
+            <div>
+                <h4>Cartons</h4>
+                <div class="cards-control">
+                    <button class="cards-remove" data-team-index="2">–</button>
+                    <span class="cards-value" data-team-index="2">0</span>
+                    <button class="cards-add" data-team-index="2">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Équipe 3 -->
+        <div class="team-control hidden" data-team-index="3">
+            <h3 class="team-name">Équipe 3</h3>
+            <div>
+                <h4>Score</h4>
+                <div class="score-control">
+                    <button class="score-remove" data-team-index="3">–</button>
+                    <span class="score-value" data-team-index="3">0</span>
+                    <button class="score-add" data-team-index="3">+</button>
+                </div>
+            </div>
+            <div>
+                <h4>Cartons</h4>
+                <div class="cards-control">
+                    <button class="cards-remove" data-team-index="3">–</button>
+                    <span class="cards-value" data-team-index="3">0</span>
+                    <button class="cards-add" data-team-index="3">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Équipe 4 -->
+        <div class="team-control hidden" data-team-index="4">
+            <h3 class="team-name">Équipe 4</h3>
+            <div>
+                <h4>Score</h4>
+                <div class="score-control">
+                    <button class="score-remove" data-team-index="4">–</button>
+                    <span class="score-value" data-team-index="4">0</span>
+                    <button class="score-add" data-team-index="4">+</button>
+                </div>
+            </div>
+            <div>
+                <h4>Cartons</h4>
+                <div class="cards-control">
+                    <button class="cards-remove" data-team-index="4">–</button>
+                    <span class="cards-value" data-team-index="4">0</span>
+                    <button class="cards-add" data-team-index="4">+</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<main id="settings-page" class="hidden">
+    <h1>Configuration des équipes</h1>
+
+    <section id="team-count-section" class="field-group">
+        <label for="team-count">Nombre d’équipes :</label>
+        <select id="team-count" name="team-count">
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </section>
+
+    <section id="teams-container" class="teams-config-container">
+        <div class="team-config" data-team-index="1">
+            <h2>Équipe 1</h2>
+            <div class="field-group">
+                <label for="team-name-1">Nom :</label>
+                <input type="text" id="team-name-1" name="team-name-1" placeholder="Nom de l’équipe 1"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-1">Couleur :</label>
+                <input type="color" id="team-color-1" name="team-color-1" value="#e6194B"/>
+            </div>
+        </div>
+
+        <div class="team-config" data-team-index="2">
+            <h2>Équipe 2</h2>
+            <div class="field-group">
+                <label for="team-name-2">Nom :</label>
+                <input type="text" id="team-name-2" name="team-name-2" placeholder="Nom de l’équipe 2"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-2">Couleur :</label>
+                <input type="color" id="team-color-2" name="team-color-2" value="#3cb44b"/>
+            </div>
+        </div>
+
+        <div class="team-config hidden" data-team-index="3">
+            <h2>Équipe 3</h2>
+            <div class="field-group">
+                <label for="team-name-3">Nom :</label>
+                <input type="text" id="team-name-3" name="team-name-3" placeholder="Nom de l’équipe 3"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-3">Couleur :</label>
+                <input type="color" id="team-color-3" name="team-color-3" value="#ffe119"/>
+            </div>
+        </div>
+
+        <div class="team-config hidden" data-team-index="4">
+            <h2>Équipe 4</h2>
+            <div class="field-group">
+                <label for="team-name-4">Nom :</label>
+                <input type="text" id="team-name-4" name="team-name-4" placeholder="Nom de l’équipe 4"/>
+            </div>
+            <div class="field-group">
+                <label for="team-color-4">Couleur :</label>
+                <input type="color" id="team-color-4" name="team-color-4" value="#4363d8"/>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="control.js"></script>
+</body>
+</html>
