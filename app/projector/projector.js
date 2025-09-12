@@ -1,6 +1,7 @@
 const channel = new BroadcastChannel('impro-game');
 
 let settings = {teamCount: 2, teams: []};
+let lastTimer = {remaining: 0, total: 1};
 
 /* Utils */
 function formatTime(totalSeconds) {
@@ -52,30 +53,41 @@ function resetRoundDisplay() {
     const label = document.getElementById('phase-label');
     label.textContent = '';
     document.getElementById('timer-value').textContent = '00:00';
-    updateProgressCircle(0, 1); // anneau vide
+    lastTimer = {remaining: 0, total: 1};
+    updateProgressCircle(lastTimer.remaining, lastTimer.total); // anneau vide
     document.getElementById('timer-display').classList.remove('danger');
 }
 
 function updatePhaseLabel(phase) {
     const label = document.getElementById('phase-label');
-    if (phase === 'prep') {
-        label.textContent = 'Caucus';
-    } else if (phase === 'impro') {
-        label.textContent = 'Impro';
-    } else {
-        label.textContent = '';
-    }
+    if (phase === 'prep') label.textContent = 'Caucus';
+    else if (phase === 'impro') label.textContent = 'Impro';
+    else label.textContent = '';
 }
 
+/**
+ * Rend l'anneau vraiment responsive :
+ * - lit le rayon réel du <circle>
+ * - recalcule dasharray/offset à chaque update (et au resize)
+ */
 function updateProgressCircle(remaining, total) {
     const circle = document.querySelector('.progress-ring .progress');
-    const radius = 180;
-    const circumference = 2 * Math.PI * radius;
+    if (!circle) return;
+
+    const r = circle.r && circle.r.baseVal ? circle.r.baseVal.value : 180; // fallback
+    const circumference = 2 * Math.PI * r;
+
+    circle.style.strokeDasharray = `${circumference}`;
     const safeTotal = Math.max(1, Number(total) || 0);
     const safeRemaining = Math.max(0, Number(remaining) || 0);
     const offset = circumference - (safeRemaining / safeTotal) * circumference;
     circle.style.strokeDashoffset = offset;
 }
+
+/* Recalcule l'anneau si la taille change */
+window.addEventListener('resize', () => {
+    updateProgressCircle(lastTimer.remaining, lastTimer.total);
+});
 
 /* Init */
 document.addEventListener('DOMContentLoaded', () => {
@@ -106,15 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
 
             case 'timer':
+                lastTimer = {
+                    remaining: Number(payload.remaining) || 0,
+                    total: Number(payload.total) || 60
+                };
                 updatePhaseLabel(payload.phase);
-                updateProgressCircle(payload.remaining, payload.total || 60);
-                document.getElementById('timer-value').textContent = formatTime(payload.remaining);
-                const isDanger = Number(payload.remaining) <= 10 && Number(payload.remaining) > 0;
+                updateProgressCircle(lastTimer.remaining, lastTimer.total);
+                document.getElementById('timer-value').textContent = formatTime(lastTimer.remaining);
+                const isDanger = lastTimer.remaining <= 5 && lastTimer.remaining > 0;
                 document.getElementById('timer-display').classList.toggle('danger', isDanger);
                 break;
 
             case 'timerStop':
-                // Affichage conservé; rien d’automatique en pause.
                 break;
 
             case 'roundReset':
@@ -122,4 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
     };
+
+    // Première mise en forme de l'anneau
+    updateProgressCircle(lastTimer.remaining, lastTimer.total);
 });

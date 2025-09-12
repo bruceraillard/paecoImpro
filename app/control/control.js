@@ -222,21 +222,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Flux 100% manuel (mm:ss) ---
-    startBtn?.addEventListener('click', () => {
+    function broadcastRoundInfo() {
         const theme = document.getElementById('theme')?.value || '';
         const category = document.getElementById('category')?.value || '';
-        const prepTime = readTimeSeconds('prep-min', 'prep-sec');
-
-        // Affiche thème/catégorie côté projecteur
         channel.postMessage({type: 'roundStart', payload: {theme, category}});
+    }
 
-        // Lance le chrono du caucus
+    // --- Flux 100% manuel (mm:ss) ---
+    startBtn?.addEventListener('click', () => {
+        const prepTime = readTimeSeconds('prep-min', 'prep-sec');
+        broadcastRoundInfo();
         startManualTimer(prepTime, 'prep');
     });
 
     startImproBtn?.addEventListener('click', () => {
         const improTime = readTimeSeconds('impro-min', 'impro-sec');
+        broadcastRoundInfo();
         startManualTimer(improTime, 'impro');
     });
 

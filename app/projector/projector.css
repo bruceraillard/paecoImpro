@@ -1,12 +1,21 @@
-/* Reset & base */
+/* =========================
+   Reset & base
+   ========================= */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+:root {
+    /* Échelle responsive */
+    --space: clamp(8px, 1.6vmin, 24px);
+    --timer-size: clamp(180px, 38vmin, 520px);
+    --stroke: clamp(10px, 3vmin, 30px);
+}
+
 html, body {
-    height: 100vh;
+    min-height: 100svh; /* évite le bug 100vh mobile */
     color: #fff;
     font-family: 'Montserrat', sans-serif;
     display: flex;
@@ -29,21 +38,24 @@ main, .logo-container {
 
 main {
     width: 100%;
-    height: 100vh;
-    padding: 2rem;
+    min-height: 100svh;
+    padding: var(--space);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: var(--space);
     background: transparent;
 }
 
-/* Logo */
+/* =========================
+   Logo
+   ========================= */
 .logo-container {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+    right: 10px;
     z-index: 1000;
-    width: 15%;
+    width: clamp(100px, 12vw, 220px);
 }
 
 .logo-container img {
@@ -52,7 +64,9 @@ main {
     object-fit: contain;
 }
 
-/* Fond étoiles */
+/* =========================
+   Fond étoiles
+   ========================= */
 .stars {
     position: fixed;
     inset: 0;
@@ -89,7 +103,15 @@ main {
     }
 }
 
-/* Timer */
+@media (prefers-reduced-motion: reduce) {
+    .stars::before {
+        animation: none;
+    }
+}
+
+/* =========================
+   Timer
+   ========================= */
 #timer-display {
     text-align: center;
 }
@@ -98,9 +120,9 @@ main {
     position: absolute;
     top: 0;
     left: 0;
-    margin: 2rem;
-    width: 400px;
-    height: 400px;
+    margin: var(--space);
+    width: var(--timer-size);
+    height: var(--timer-size);
 }
 
 .progress-ring {
@@ -112,73 +134,76 @@ main {
 .progress-ring .background {
     fill: none;
     stroke: #fed32e;
-    stroke-width: 30;
+    stroke-width: var(--stroke);
 }
 
 .progress-ring .progress {
     fill: none;
     stroke: #fff;
-    stroke-width: 30;
+    stroke-width: var(--stroke);
     stroke-linecap: round;
-    stroke-dasharray: 1131; /* 2πr avec r=180 */
-    stroke-dashoffset: 1131;
+    /* dasharray/offset gérés en JS pour rester 100% responsive */
     transition: stroke-dashoffset .2s linear;
 }
-
 
 #timer-display.danger .progress-ring .background {
     stroke: #ff3b30;
 }
+
 #timer-display.danger .timer-text {
     color: #ff3b30;
 }
 
 .timer-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3rem;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: clamp(32px, 8vmin, 72px);
     font-weight: bold;
     color: #fed32e;
 }
 
 #phase-label {
     color: #fed32e;
-    font-size: 2rem;
+    font-size: clamp(16px, 3vmin, 32px);
     font-weight: 500;
     margin-bottom: .5rem;
 }
 
-/* Infos manche */
+/* =========================
+   Infos manche
+   ========================= */
 #round-info {
     text-align: center;
-    margin: 2rem 0;
+    margin: var(--space) 0;
 }
 
 #round-info h3 {
-    font-size: 3.2rem;
+    font-size: clamp(18px, 3.6vmin, 40px);
     margin: .5rem 0;
     font-weight: normal;
 }
 
 #display-theme, #display-category {
     color: #fed32e;
-    font-family: "Playfair Display", serif;
-    font-weight: bold;
+    font-family: "Horta", serif;
+    font-size: clamp(25px, 6.6vmin, 60px);
 }
 
-/* Équipes */
+/* =========================
+   Équipes
+   ========================= */
 #teams-display {
-    display: flex;
-    justify-content: space-around;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 42vw), 1fr));
+    gap: clamp(12px, 3vmin, 24px);
+    align-items: start;
+    margin-top: var(--space);
 }
 
 .team-display {
-    width: 250px;
+    width: 100%;
     text-align: center;
     padding: 0;
     overflow: hidden;
@@ -188,9 +213,11 @@ main {
 .team-header {
     font-weight: bold;
     padding: .8rem;
-    font-size: 3rem;
+    font-size: clamp(18px, 4vmin, 36px);
     color: var(--team-color, #fff);
-    font-family: "Playfair Display", serif;
+    font-family: "Horta", serif;
+    background-color: #fff;
+    border-radius: 200rem;
 }
 
 .team-score-display {
@@ -198,17 +225,18 @@ main {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 1rem;
+    margin-top: .8rem;
 }
 
 .team-score-display .score {
-    font-size: 10rem;
+    font-size: clamp(48px, 10vmin, 96px);
     font-weight: bold;
     color: #fff;
     background-color: var(--team-color, #000);
     border-radius: 200px;
-    width: 200px;
-    height: 200px;
+    border: clamp(3px, .8vmin, 6px) solid #fff;
+    width: clamp(120px, 18vmin, 220px);
+    height: clamp(120px, 18vmin, 220px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -218,39 +246,62 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: .5rem;
-    margin-top: 1rem;
+    gap: clamp(4px, 1vmin, 10px);
+    margin-top: .6rem;
 }
 
 .card {
-    width: 50px;
-    height: 50px;
+    width: clamp(24px, 4vmin, 46px);
+    height: clamp(24px, 4vmin, 46px);
     border-radius: 50%;
-    border: 2px solid;
-    background: transparent;
-    color: var(--team-color, #000);
+    border: clamp(2px, .6vmin, 3px) solid #fff;
+    background: rgba(255, 255, 255, 1);
 }
 
 .card.filled {
-    background-color: currentColor;
+    background-color: var(--team-color, #000);
 }
 
 /* Utils */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-/* Responsive */
+/* =========================
+   Responsive refinements
+   ========================= */
+
+/* Petites largeurs : timer centré, layout plus vertical */
 @media (max-width: 768px) {
-    .team-display {
-        width: 45%;
+    #timer-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    #round-info h3 {
-        font-size: 1.6rem;
+    .circle-timer {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin: 0 auto var(--space);
+    }
+}
+
+/* Écrans "hauteur courte" (projecteurs 4:3, laptops) */
+@media (max-aspect-ratio: 4/3) {
+    main {
+        justify-content: flex-start;
     }
 
-    .timer-text {
-        font-size: 2.4rem;
+    #timer-display {
+        order: 0;
+    }
+
+    #round-info {
+        order: 1;
+    }
+
+    #teams-display {
+        order: 2;
     }
 }
