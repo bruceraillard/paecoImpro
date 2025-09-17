@@ -2,16 +2,15 @@
    Base & tokens
    ========================= */
 :root {
-    --space: clamp(10px, 2vmin, 24px);
-    --content-w: min(1200px, 92vw);
+    --space: 2vmin;
     --radius: 10px;
 
-    --fz-h1: clamp(22px, 3.2vmin, 38px);
-    --fz-h2: clamp(18px, 2.6vmin, 28px);
-    --fz-body: clamp(14px, 1.8vmin, 18px);
+    --fz-h1: 3.2vmin;
+    --fz-h2: 2.6vmin;
+    --fz-body: 1.8vmin;
 
     --card-min: 240px; /* min width d'une carte (teams/config) */
-    --gap: clamp(10px, 2vmin, 20px);
+    --gap: 2vmin;
 }
 
 * {
@@ -27,7 +26,7 @@ html, body {
 }
 
 main {
-    width: var(--content-w);
+    width: 100%;
     margin: 0 auto;
     padding: calc(var(--space) * 1.2) var(--space) var(--space);
 }
@@ -166,7 +165,7 @@ input[type="text"], input[type="number"], select {
 }
 
 .time-fields input[type="number"] {
-    width: clamp(80px, 20vw, 120px);
+    width: 20vw;
     text-align: center;
 }
 
@@ -224,7 +223,7 @@ button:hover {
     color: #fff;
     font-family: "Horta", serif;
     font-weight: 800;
-    font-size: clamp(18px, 2.6vmin, 28px);
+    font-size: 2.6vmin;
     padding: .6rem .8rem;
     text-align: center;
 }
@@ -245,11 +244,11 @@ button:hover {
     background: transparent;
     color: #000;
     font-weight: 800;
-    font-size: clamp(22px, 4.2vmin, 34px);
+    font-size: 4.2vmin;
     border: 2px solid #0003;
     border-radius: 8px;
-    width: clamp(36px, 7vmin, 48px);
-    height: clamp(36px, 7vmin, 48px);
+    width: 7vmin;
+    height: 7vmin;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -262,7 +261,7 @@ button:hover {
 }
 
 .score-control span, .cards-control span {
-    font-size: clamp(26px, 5vmin, 42px);
+    font-size: 5vmin;
     font-weight: 800;
     text-align: center;
 }
@@ -297,7 +296,7 @@ button:hover {
     color: #000;
     border-radius: 8px;
     padding: .5rem .8rem;
-    font-size: clamp(18px, 2.6vmin, 28px);
+    font-size: 2.6vmin;
     text-align: center;
     margin: 0 0 .8rem;
 }

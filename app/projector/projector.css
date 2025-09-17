@@ -9,9 +9,9 @@
 
 :root {
     /* Échelle responsive */
-    --space: clamp(8px, 1.6vmin, 24px);
-    --timer-size: clamp(180px, 38vmin, 520px);
-    --stroke: clamp(10px, 3vmin, 30px);
+    --space: 1.6vmin;
+    --timer-size: 40vmin;
+    --stroke: 2vmin;
 }
 
 html, body {
@@ -55,7 +55,7 @@ main {
     top: 10px;
     right: 10px;
     z-index: 1000;
-    width: clamp(100px, 12vw, 220px);
+    width: 12vw;
 }
 
 .logo-container img {
@@ -159,14 +159,14 @@ main {
     inset: 0;
     display: grid;
     place-items: center;
-    font-size: clamp(32px, 8vmin, 72px);
+    font-size: max(7vmin, 64px);
     font-weight: bold;
     color: #fed32e;
 }
 
 #phase-label {
     color: #fed32e;
-    font-size: clamp(16px, 3vmin, 32px);
+    font-size: 3vmin;
     font-weight: 500;
     margin-bottom: .5rem;
 }
@@ -180,7 +180,7 @@ main {
 }
 
 #round-info h3 {
-    font-size: clamp(18px, 3.6vmin, 40px);
+    font-size: 3.6vmin;
     margin: .5rem 0;
     font-weight: normal;
 }
@@ -188,7 +188,7 @@ main {
 #display-theme, #display-category {
     color: #fed32e;
     font-family: "Horta", serif;
-    font-size: clamp(25px, 6.6vmin, 60px);
+    font-size: 6.6vmin
 }
 
 /* =========================
@@ -197,7 +197,7 @@ main {
 #teams-display {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(220px, 42vw), 1fr));
-    gap: clamp(12px, 3vmin, 24px);
+    gap: 3vmin;
     align-items: start;
     margin-top: var(--space);
 }
@@ -213,7 +213,7 @@ main {
 .team-header {
     font-weight: bold;
     padding: .8rem;
-    font-size: clamp(18px, 4vmin, 36px);
+    font-size: 4vmin;
     color: var(--team-color, #fff);
     font-family: "Horta", serif;
     background-color: #fff;
@@ -229,14 +229,14 @@ main {
 }
 
 .team-score-display .score {
-    font-size: clamp(48px, 10vmin, 96px);
+    font-size: 10vmin;
     font-weight: bold;
     color: #fff;
     background-color: var(--team-color, #000);
     border-radius: 200px;
-    border: clamp(3px, .8vmin, 6px) solid #fff;
-    width: clamp(120px, 18vmin, 220px);
-    height: clamp(120px, 18vmin, 220px);
+    border: .8vmin solid #fff;
+    width: 18vmin;
+    height: 18vmin;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -246,15 +246,15 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(4px, 1vmin, 10px);
+    gap: 1vmin;
     margin-top: .6rem;
 }
 
 .card {
-    width: clamp(24px, 4vmin, 46px);
-    height: clamp(24px, 4vmin, 46px);
+    width: 4vmin;
+    height: 4vmin;
     border-radius: 50%;
-    border: clamp(2px, .6vmin, 3px) solid #fff;
+    border: .6vmin solid #fff;
     background: rgba(255, 255, 255, 1);
 }
 
