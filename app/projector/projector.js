@@ -1,9 +1,14 @@
+/* -------------------------------------------------------------------------- */
+/*  Channel bootstrap                                                          */
+/* -------------------------------------------------------------------------- */
 const channel = new BroadcastChannel('impro-game');
 
 let settings = {teamCount: 2, teams: []};
 let lastTimer = {remaining: 0, total: 1};
 
-/* ---------- Utils ---------- */
+/* -------------------------------------------------------------------------- */
+/*  Utilities                                                                  */
+/* -------------------------------------------------------------------------- */
 function formatTime(totalSeconds) {
     const seconds = Math.max(0, Math.floor(totalSeconds));
     const m = Math.floor(seconds / 60);
@@ -16,7 +21,6 @@ function loadSettings() {
     if (!saved) return;
     try {
         const parsed = JSON.parse(saved);
-        // garde-fou pour éviter undefined
         settings = {
             teamCount: Math.min(4, Math.max(1, Number(parsed.teamCount) || 2)),
             teams: Array.isArray(parsed.teams) ? parsed.teams.slice(0, 4) : []
@@ -70,17 +74,16 @@ function updatePhaseLabel(phase) {
             : '';
 }
 
-/* ----------
-   SVG ring: recalculé en live pour rester responsive
----------- */
+/* -------------------------------------------------------------------------- */
+/*  Progress circle                                                            */
+/* -------------------------------------------------------------------------- */
 function updateProgressCircle(remaining, total) {
     const circle = document.querySelector('.progress-ring .progress');
     if (!circle) return;
 
-    const r = circle.r && circle.r.baseVal ? circle.r.baseVal.value : 180; // fallback
+    const r = circle.r && circle.r.baseVal ? circle.r.baseVal.value : 180;
     const circumference = 2 * Math.PI * r;
 
-    // dasharray sur 2 valeurs = rendu stable (Chrome/Safari/Firefox)
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
 
     const safeTotal = Math.max(1, Number(total) || 0);
@@ -89,12 +92,13 @@ function updateProgressCircle(remaining, total) {
     circle.style.strokeDashoffset = offset;
 }
 
-/* Recalcule l’anneau si la taille change */
 window.addEventListener('resize', () => {
     updateProgressCircle(lastTimer.remaining, lastTimer.total);
 });
 
-/* ---------- Init ---------- */
+/* -------------------------------------------------------------------------- */
+/*  Initialisation                                                             */
+/* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     updateTeamDisplays();
@@ -141,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             case 'timerStop':
-                // on garde l’affichage courant, rien à faire
                 break;
 
             case 'roundReset':
@@ -150,6 +153,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Première mise en forme de l’anneau
     updateProgressCircle(lastTimer.remaining, lastTimer.total);
 });

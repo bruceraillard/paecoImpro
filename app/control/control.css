@@ -1,6 +1,4 @@
-/* =========================
-   Base & tokens
-   ========================= */
+/* Layout tokens and resets ------------------------------------------------- */
 :root {
     --space: 2vmin;
     --radius: 10px;
@@ -9,7 +7,7 @@
     --fz-h2: 2.6vmin;
     --fz-body: 1.8vmin;
 
-    --card-min: 240px; /* min width d'une carte (teams/config) */
+    --card-min: 240px;
     --gap: 2vmin;
 }
 
@@ -55,9 +53,7 @@ p, label, input, select, button, span {
     display: none !important;
 }
 
-/* =========================
-   Navigation (onglets)
-   ========================= */
+/* Navigation --------------------------------------------------------------- */
 .main-nav {
     position: sticky;
     top: 0;
@@ -69,7 +65,7 @@ p, label, input, select, button, span {
     padding: var(--space);
     background: #40350c;
     border-bottom: 2px solid #fff;
-    flex-wrap: wrap; /* permet de passer sur 2 lignes en mobile */
+    flex-wrap: wrap;
 }
 
 .main-nav button {
@@ -91,8 +87,6 @@ p, label, input, select, button, span {
     border-bottom-color: #fed32e;
 }
 
-/* Le bouton "Ouvrir le Projecteur" à droite sur grand écran,
-   pleine largeur en mobile */
 #open-projector-btn.top-right {
     margin-left: auto;
     background: #000;
@@ -105,14 +99,12 @@ p, label, input, select, button, span {
     #open-projector-btn.top-right {
         margin-left: 0;
         width: 100%;
-        order: 3; /* passe en ligne suivante */
+        order: 3;
         text-align: center;
     }
 }
 
-/* =========================
-   Section : Paramètres de la manche
-   ========================= */
+/* Round configuration ------------------------------------------------------ */
 #round-config {
     width: 100%;
     margin: calc(var(--space) * 1.5) 0;
@@ -169,7 +161,6 @@ input[type="text"], input[type="number"], select {
     text-align: center;
 }
 
-/* Boutons d’action (démarrer / reset) */
 .buttons_lists {
     display: flex;
     flex-wrap: wrap;
@@ -194,9 +185,7 @@ button:hover {
     color: #fff;
 }
 
-/* =========================
-   Contrôles des équipes (scores/cartons)
-   ========================= */
+/* Team score panels -------------------------------------------------------- */
 .teams-controls {
     width: 100%;
     display: grid;
@@ -214,7 +203,6 @@ button:hover {
     display: grid;
     grid-template-rows: auto 1fr;
     min-height: 220px;
-    /* annule l’ancien width:20% si existant */
     width: auto;
 }
 
@@ -266,9 +254,7 @@ button:hover {
     text-align: center;
 }
 
-/* =========================
-   Page "Paramètres" (config des équipes)
-   ========================= */
+/* Settings view ------------------------------------------------------------ */
 #team-count-section {
     text-align: center;
     margin-bottom: var(--space);
@@ -310,9 +296,7 @@ button:hover {
     margin-top: .4rem;
 }
 
-/* =========================
-   Petits écrans & détails UX
-   ========================= */
+/* Responsive adjustments --------------------------------------------------- */
 @media (max-width: 480px) {
     .main-nav {
         gap: 8px;

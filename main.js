@@ -1,3 +1,6 @@
+/* -------------------------------------------------------------------------- */
+/*  Electron bootstrap and static asset server                                */
+/* -------------------------------------------------------------------------- */
 const {app, BrowserWindow} = require('electron');
 const path = require('path');
 const express = require('express');
@@ -6,7 +9,7 @@ const serveStatic = require('serve-static');
 let httpServer;
 let controlWin;
 
-function startStaticServer() {
+async function startStaticServer() {
     return new Promise(resolve => {
         const ex = express();
         ex.use(serveStatic(path.join(__dirname, 'app'), {index: ['index.html']}));
@@ -28,16 +31,14 @@ async function createWindows() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            nativeWindowOpen: true, // permet window.open
+            nativeWindowOpen: true,
         }
     });
 
     const baseUrl = `http://127.0.0.1:${port}`;
     await controlWin.loadURL(`${baseUrl}/control/control.html`);
 
-    // Intercepte window.open pour ouvrir le projecteur en nouvelle fenêtre
     controlWin.webContents.setWindowOpenHandler(({url}) => {
-        // n'autorise que notre projecteur
         if (url.startsWith(`${baseUrl}/projector/`)) {
             const proj = new BrowserWindow({
                 width: 1200,
@@ -50,7 +51,7 @@ async function createWindows() {
                 }
             });
             proj.loadURL(url);
-            return {action: 'deny'}; // on gère nous-mêmes l'ouverture
+            return {action: 'deny'};
         }
         return {action: 'deny'};
     });

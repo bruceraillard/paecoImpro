@@ -1,40 +1,43 @@
+/* -------------------------------------------------------------------------- */
+/*  Messaging channel and persisted configuration                             */
+/* -------------------------------------------------------------------------- */
 const channel = new BroadcastChannel('impro-game');
 
-// --- DEFAULTS ---
 const DEFAULT_SETTINGS = {
     teamCount: 2,
-    teams: [{name: '', color: '#e6194B'}, {name: '', color: '#3cb44b'}, {name: '', color: '#ffe119'}, {
-        name: '',
-        color: '#4363d8'
-    }]
+    teams: [
+        {name: '', color: '#e6194B'},
+        {name: '', color: '#3cb44b'},
+        {name: '', color: '#ffe119'},
+        {name: '', color: '#4363d8'}
+    ]
 };
 
 let settings = {...DEFAULT_SETTINGS};
 let scores = [], cards = [];
 
-// --- TIMER (manuel, sans bouton "arrêter") ---
+/* -------------------------------------------------------------------------- */
+/*  Manual timer lifecycle                                                    */
+/* -------------------------------------------------------------------------- */
 let timerId = null;
-let timerPhase = null;   // 'prep' | 'impro' | null
-let timerTotal = 0;      // secondes
-let timerStartedAt = 0;  // timestamp ms
+let timerPhase = null;   // labels whether we are timing the caucus or the improv
+let timerTotal = 0;      // full duration in seconds for the current phase
+let timerStartedAt = 0;  // millisecond timestamp captured when the phase begins
 
 function startManualTimer(totalSeconds, phase) {
-    stopManualTimer(); // coupe l'ancien au cas où
+    stopManualTimer();
 
     timerPhase = phase;
     timerTotal = Math.max(0, Number(totalSeconds) || 0);
     timerStartedAt = Date.now();
 
-    // tick immédiat
     channel.postMessage({type: 'timer', payload: {phase: timerPhase, remaining: timerTotal, total: timerTotal}});
 
-    // tick régulier
     timerId = setInterval(() => {
         const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
         const remaining = Math.max(0, timerTotal - elapsed);
 
         channel.postMessage({type: 'timer', payload: {phase: timerPhase, remaining, total: timerTotal}});
-        // 100% manuel : rien d'automatique à 0
     }, 250);
 }
 
@@ -51,7 +54,10 @@ function resetProjectorDisplay() {
     channel.postMessage({type: 'roundReset'});
 }
 
-// --- SETTINGS LOGIC ---
+/* -------------------------------------------------------------------------- */
+/*  Settings synchronisation                                                  */
+
+/* -------------------------------------------------------------------------- */
 function loadSettings() {
     const saved = localStorage.getItem('impro-settings');
     settings = saved ? JSON.parse(saved) : {...DEFAULT_SETTINGS};
@@ -102,7 +108,10 @@ function updateCardsUI() {
     });
 }
 
-// --- Helpers ---
+/* -------------------------------------------------------------------------- */
+/*  Small helpers                                                             */
+
+/* -------------------------------------------------------------------------- */
 function readTimeSeconds(minId, secId) {
     const m = Math.max(0, Number(document.getElementById(minId)?.value) || 0);
     const sRaw = Math.max(0, Number(document.getElementById(secId)?.value) || 0);
@@ -110,21 +119,22 @@ function readTimeSeconds(minId, secId) {
     return m * 60 + sRaw;
 }
 
-// --- DOM BINDING ---
+/* -------------------------------------------------------------------------- */
+/*  DOM bindings                                                              */
+/* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
     const teamCountSelect = document.getElementById('team-count');
     const teamConfigs = document.querySelectorAll('.team-config');
 
-    const startBtn = document.getElementById('start-round');   // Démarrer le caucus
-    const startImproBtn = document.getElementById('start-impro');   // Démarrer l’impro
-    const resetBtn = document.getElementById('reset-round');   // Réinitialiser affichage
+    const startBtn = document.getElementById('start-round');
+    const startImproBtn = document.getElementById('start-impro');
+    const resetBtn = document.getElementById('reset-round');
 
     const controlPage = document.getElementById('control-page');
     const settingsPage = document.getElementById('settings-page');
     const navControl = document.getElementById('nav-control');
     const navSettings = document.getElementById('nav-settings');
 
-    // Onglets
     navControl?.addEventListener('click', () => {
         navControl.classList.add('active');
         navSettings.classList.remove('active');
@@ -138,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsPage.classList.remove('hidden');
     });
 
-    // Init settings + UI
     loadSettings();
     scores = Array(settings.teamCount).fill(0);
     cards = Array(settings.teamCount).fill(0);
@@ -178,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         channel.postMessage({type: 'init', payload: settings});
     }
 
-    // Scores
     document.querySelectorAll('.score-add').forEach(btn => {
         btn.addEventListener('click', () => {
             const i = +btn.dataset.teamIndex - 1;
@@ -200,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Cartons
     document.querySelectorAll('.cards-add').forEach(btn => {
         btn.addEventListener('click', () => {
             const i = +btn.dataset.teamIndex - 1;
@@ -228,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         channel.postMessage({type: 'roundStart', payload: {theme, category}});
     }
 
-    // --- Flux 100% manuel (mm:ss) ---
     startBtn?.addEventListener('click', () => {
         const prepTime = readTimeSeconds('prep-min', 'prep-sec');
         broadcastRoundInfo();
@@ -245,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resetProjectorDisplay();
     });
 
-    // Ouvrir le projecteur
     document.getElementById('open-projector-btn')?.addEventListener('click', () => {
         window.open('../projector/projector.html', '_blank');
     });

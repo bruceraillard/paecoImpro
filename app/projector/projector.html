@@ -15,7 +15,7 @@
 <div class="stars" aria-hidden="true"></div>
 
 <main>
-    <!-- Timer -->
+    <!-- Animated timer for the current phase -->
     <section id="timer-display" aria-live="polite">
         <div class="circle-timer">
             <svg viewBox="0 0 400 400" class="progress-ring" aria-hidden="true">
@@ -27,13 +27,13 @@
         <p id="phase-label" aria-label="Phase"></p>
     </section>
 
-    <!-- Infos de manche -->
+    <!-- Details sent from the control desk for context -->
     <section id="round-info">
         <h3>Thème :<br><span id="display-theme">—</span></h3>
         <h3>Catégorie :<br><span id="display-category">—</span></h3>
     </section>
 
-    <!-- Équipes -->
+    <!-- Team scoreboard mirrored from the control view -->
     <section id="teams-display" aria-label="Scores des équipes">
         <div class="team-display" data-team-index="1" style="--team-color:#ffffff">
             <div class="team-header">Équipe 1</div>

@@ -20,5 +20,3 @@ dist/
 .idea/
 .vscode/
 *.iml
-
-build/icon.iconset/

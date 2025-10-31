@@ -1,6 +1,4 @@
-/* =========================
-   Reset & base
-   ========================= */
+/* Base styles -------------------------------------------------------------- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,14 +6,13 @@
 }
 
 :root {
-    /* Échelle responsive */
     --space: 1.6vmin;
     --timer-size: 40vmin;
     --stroke: 2vmin;
 }
 
 html, body {
-    min-height: 100svh; /* évite le bug 100vh mobile */
+    min-height: 100svh;
     color: #fff;
     font-family: 'Montserrat', sans-serif;
     display: flex;
@@ -47,9 +44,7 @@ main {
     background: transparent;
 }
 
-/* =========================
-   Logo
-   ========================= */
+/* Branding ---------------------------------------------------------------- */
 .logo-container {
     position: absolute;
     top: 10px;
@@ -64,9 +59,7 @@ main {
     object-fit: contain;
 }
 
-/* =========================
-   Fond étoiles
-   ========================= */
+/* Starfield background ---------------------------------------------------- */
 .stars {
     position: fixed;
     inset: 0;
@@ -109,9 +102,7 @@ main {
     }
 }
 
-/* =========================
-   Timer
-   ========================= */
+/* Timer ------------------------------------------------------------------- */
 #timer-display {
     text-align: center;
 }
@@ -142,7 +133,6 @@ main {
     stroke: #fff;
     stroke-width: var(--stroke);
     stroke-linecap: round;
-    /* dasharray/offset gérés en JS pour rester 100% responsive */
     transition: stroke-dashoffset .2s linear;
 }
 
@@ -171,9 +161,7 @@ main {
     margin-bottom: .5rem;
 }
 
-/* =========================
-   Infos manche
-   ========================= */
+/* Round information ------------------------------------------------------- */
 #round-info {
     text-align: center;
     margin: var(--space) 0;
@@ -191,9 +179,7 @@ main {
     font-size: 6.6vmin
 }
 
-/* =========================
-   Équipes
-   ========================= */
+/* Team grid ---------------------------------------------------------------- */
 #teams-display {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(220px, 42vw), 1fr));
@@ -262,16 +248,11 @@ main {
     background-color: var(--team-color, #000);
 }
 
-/* Utils */
 .hidden {
     display: none !important;
 }
 
-/* =========================
-   Responsive refinements
-   ========================= */
-
-/* Petites largeurs : timer centré, layout plus vertical */
+/* Responsive tweaks ------------------------------------------------------- */
 @media (max-width: 768px) {
     #timer-display {
         display: flex;
