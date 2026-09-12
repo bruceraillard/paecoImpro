@@ -56,6 +56,17 @@ Ce script démarre le processus principal Electron (`main.js`). Celui-ci ouvre a
 sert les fichiers statiques contenus dans `app/` via un mini-serveur Express local. Depuis la fenêtre de contrôle,
 cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nouvelle fenêtre.
 
+## Qualité
+
+- Vérifier la syntaxe et lancer les tests unitaires :
+  ```bash
+  npm run check
+  ```
+- Lancer uniquement les tests :
+  ```bash
+  npm test
+  ```
+
 ### Utilisation du contrôleur
 
 1. Configurez la manche (thème, catégorie, durées de caucus et d'impro).

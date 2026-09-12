@@ -127,7 +127,14 @@
     function updateTeam(state, teamIndex, patch) {
         const next = cloneState(state);
         const index = clampInteger(teamIndex, 1, MAX_TEAMS, 1) - 1;
-        next.settings.teams[index] = normalizeTeam({...next.settings.teams[index], ...patch}, index);
+        const current = next.settings.teams[index];
+        const input = patch && typeof patch === 'object' ? patch : {};
+
+        next.settings.teams[index] = {
+            name: typeof input.name === 'string' ? input.name : current.name,
+            color: normalizeColor(input.color, current.color)
+        };
+
         return next;
     }
 
