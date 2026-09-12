@@ -23,6 +23,77 @@ function requestState() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  DOM creation                                                               */
+/* -------------------------------------------------------------------------- */
+function createElement(tagName, options = {}, children = []) {
+    const element = document.createElement(tagName);
+
+    if (options.className) element.className = options.className;
+    if (options.textContent !== undefined) element.textContent = options.textContent;
+    if (options.ariaLabel) element.setAttribute('aria-label', options.ariaLabel);
+    if (options.style) element.setAttribute('style', options.style);
+
+    if (options.dataset) {
+        Object.entries(options.dataset).forEach(([key, value]) => {
+            element.dataset[key] = String(value);
+        });
+    }
+
+    children.forEach(child => element.append(child));
+
+    return element;
+}
+
+function createCards() {
+    const cards = [];
+
+    for (let cardIndex = 1; cardIndex <= 3; cardIndex++) {
+        cards.push(createElement('span', {
+            className: 'card',
+            dataset: {index: cardIndex}
+        }));
+    }
+
+    return cards;
+}
+
+function createTeamDisplay(teamIndex) {
+    return createElement('div', {
+        className: 'team-display',
+        dataset: {teamIndex},
+        style: '--team-color:#ffffff'
+    }, [
+        createElement('div', {
+            className: 'team-header',
+            textContent: `Équipe ${teamIndex}`
+        }),
+        createElement('div', {className: 'team-score-display'}, [
+            createElement('div', {
+                className: 'score',
+                textContent: '0'
+            }),
+            createElement('div', {
+                className: 'cards',
+                ariaLabel: 'Cartons'
+            }, createCards())
+        ])
+    ]);
+}
+
+function renderTeamShells() {
+    const teamsContainer = document.getElementById('teams-display');
+    if (!teamsContainer) return;
+
+    const fragment = document.createDocumentFragment();
+
+    for (let teamIndex = 1; teamIndex <= Game.MAX_TEAMS; teamIndex++) {
+        fragment.append(createTeamDisplay(teamIndex));
+    }
+
+    teamsContainer.replaceChildren(fragment);
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Rendering                                                                  */
 /* -------------------------------------------------------------------------- */
 function renderTeams() {
@@ -95,6 +166,8 @@ window.addEventListener('resize', () => {
 /*  Initialisation                                                             */
 /* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+    renderTeamShells();
+
     channel.onmessage = ({data}) => {
         if (data?.type !== Game.MESSAGE_TYPES.STATE_SNAPSHOT) return;
         gameState = Game.normalizeState(data.payload);

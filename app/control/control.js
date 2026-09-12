@@ -89,6 +89,126 @@ function resetProjectorDisplay() {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  DOM creation                                                               */
+/* -------------------------------------------------------------------------- */
+function createElement(tagName, options = {}, children = []) {
+    const element = document.createElement(tagName);
+
+    if (options.className) element.className = options.className;
+    if (options.textContent !== undefined) element.textContent = options.textContent;
+    if (options.type) element.type = options.type;
+    if (options.id) element.id = options.id;
+    if (options.name) element.name = options.name;
+    if (options.placeholder) element.placeholder = options.placeholder;
+    if (options.value !== undefined) element.value = options.value;
+    if (options.for) element.htmlFor = options.for;
+    if (options.ariaLabel) element.setAttribute('aria-label', options.ariaLabel);
+    if (options.min !== undefined) element.min = options.min;
+    if (options.max !== undefined) element.max = options.max;
+
+    if (options.dataset) {
+        Object.entries(options.dataset).forEach(([key, value]) => {
+            element.dataset[key] = String(value);
+        });
+    }
+
+    children.forEach(child => element.append(child));
+
+    return element;
+}
+
+function createCounterControl(type, teamIndex) {
+    return createElement('div', {className: `${type}-control`}, [
+        createElement('button', {
+            className: `${type}-remove`,
+            dataset: {teamIndex},
+            textContent: '–',
+            type: 'button'
+        }),
+        createElement('span', {
+            className: `${type}-value`,
+            dataset: {teamIndex},
+            textContent: '0'
+        }),
+        createElement('button', {
+            className: `${type}-add`,
+            dataset: {teamIndex},
+            textContent: '+',
+            type: 'button'
+        })
+    ]);
+}
+
+function createTeamControl(teamIndex) {
+    return createElement('div', {
+        className: 'team-control',
+        dataset: {teamIndex}
+    }, [
+        createElement('h3', {
+            className: 'team-name',
+            textContent: `Équipe ${teamIndex}`
+        }),
+        createElement('div', {}, [
+            createElement('h4', {textContent: 'Score'}),
+            createCounterControl('score', teamIndex)
+        ]),
+        createElement('div', {}, [
+            createElement('h4', {textContent: 'Cartons'}),
+            createCounterControl('cards', teamIndex)
+        ])
+    ]);
+}
+
+function createTeamConfig(teamIndex) {
+    const team = gameState.settings.teams[teamIndex - 1] || {};
+    const nameId = `team-name-${teamIndex}`;
+    const colorId = `team-color-${teamIndex}`;
+
+    return createElement('div', {
+        className: 'team-config',
+        dataset: {teamIndex}
+    }, [
+        createElement('h2', {textContent: `Équipe ${teamIndex}`}),
+        createElement('div', {className: 'field-group'}, [
+            createElement('label', {for: nameId, textContent: 'Nom :'}),
+            createElement('input', {
+                id: nameId,
+                name: nameId,
+                type: 'text',
+                placeholder: `Nom de l’équipe ${teamIndex}`,
+                value: team.name || ''
+            })
+        ]),
+        createElement('div', {className: 'field-group'}, [
+            createElement('label', {for: colorId, textContent: 'Couleur :'}),
+            createElement('input', {
+                id: colorId,
+                name: colorId,
+                type: 'color',
+                value: team.color || '#000000'
+            })
+        ])
+    ]);
+}
+
+function renderTeamShells() {
+    const controlsContainer = document.getElementById('teams-controls');
+    const settingsContainer = document.getElementById('teams-container');
+    if (!controlsContainer || !settingsContainer) return;
+
+    const controlsFragment = document.createDocumentFragment();
+    const settingsFragment = document.createDocumentFragment();
+
+    for (let teamIndex = 1; teamIndex <= Game.MAX_TEAMS; teamIndex++) {
+        controlsFragment.append(createTeamControl(teamIndex));
+        settingsFragment.append(createTeamConfig(teamIndex));
+    }
+
+    controlsContainer.replaceChildren(controlsFragment);
+    settingsContainer.replaceChildren(settingsFragment);
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Rendering                                                                  */
 /* -------------------------------------------------------------------------- */
 function updateTeamConfigs() {
@@ -144,8 +264,13 @@ function updateSettingsInputs() {
         const nameInput = container.querySelector('input[type="text"]');
         const colorInput = container.querySelector('input[type="color"]');
 
-        if (nameInput) nameInput.value = team?.name || '';
-        if (colorInput) colorInput.value = team?.color || '#000000';
+        if (nameInput && nameInput.value !== (team?.name || '')) {
+            nameInput.value = team?.name || '';
+        }
+
+        if (colorInput && colorInput.value !== (team?.color || '#000000')) {
+            colorInput.value = team?.color || '#000000';
+        }
     });
 }
 
@@ -180,6 +305,8 @@ function getButtonTeamIndex(button) {
 /*  DOM bindings                                                               */
 /* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+    renderTeamShells();
+
     const teamCountSelect = document.getElementById('team-count');
     const teamConfigs = document.querySelectorAll('.team-config');
 
