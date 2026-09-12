@@ -4,11 +4,11 @@
 const Game = window.ImproGame;
 const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
-let gameState = Game.createInitialState(readStoredSettings());
+let gameState = Game.tickTimer(Game.createStateFromSession(readStoredSession(), readStoredSettings()));
 let timerId = null;
 
-function readStoredSettings() {
-    const saved = localStorage.getItem(Game.STORAGE_KEY);
+function readStoredJson(storageKey) {
+    const saved = localStorage.getItem(storageKey);
     if (!saved) return null;
 
     try {
@@ -18,8 +18,20 @@ function readStoredSettings() {
     }
 }
 
+function readStoredSettings() {
+    return readStoredJson(Game.STORAGE_KEY);
+}
+
+function readStoredSession() {
+    return readStoredJson(Game.SESSION_STORAGE_KEY);
+}
+
 function persistSettings() {
     localStorage.setItem(Game.STORAGE_KEY, JSON.stringify(gameState.settings));
+}
+
+function persistSession() {
+    localStorage.setItem(Game.SESSION_STORAGE_KEY, JSON.stringify(Game.cloneState(gameState)));
 }
 
 function broadcastState() {
@@ -36,6 +48,7 @@ function applyState(nextState, options = {}) {
         persistSettings();
     }
 
+    persistSession();
     renderControlState();
 
     if (options.broadcast !== false) {
@@ -65,6 +78,7 @@ function scheduleTimerTicks() {
 
     timerId = setInterval(() => {
         gameState = Game.tickTimer(gameState);
+        persistSession();
         broadcastState();
 
         if (!gameState.timer.isRunning) {
@@ -78,14 +92,35 @@ function startRoundTimer(totalSeconds, phase) {
 
     gameState = Game.setRoundInfo(gameState, readRoundInfo());
     gameState = Game.startTimer(gameState, totalSeconds, phase);
+    persistSession();
     renderControlState();
     broadcastState();
     scheduleTimerTicks();
 }
 
+function stopRoundTimer() {
+    clearTimerInterval();
+    applyState(Game.stopTimer(gameState));
+}
+
 function resetProjectorDisplay() {
     clearTimerInterval();
     applyState(Game.resetRoundDisplay(gameState));
+}
+
+function resetCards() {
+    applyState(Game.resetCards(gameState));
+}
+
+function resetScores() {
+    if (!window.confirm('Réinitialiser tous les scores ?')) return;
+    applyState(Game.resetScores(gameState));
+}
+
+function resetMatch() {
+    if (!window.confirm('Démarrer une nouvelle partie et remettre scores, cartons et manche à zéro ?')) return;
+    clearTimerInterval();
+    applyState(Game.resetMatch(gameState));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -301,6 +336,32 @@ function getButtonTeamIndex(button) {
     return Number(button.dataset.teamIndex);
 }
 
+function isTypingTarget(target) {
+    return ['INPUT', 'SELECT', 'TEXTAREA'].includes(target?.tagName);
+}
+
+function bindKeyboardShortcuts() {
+    document.addEventListener('keydown', event => {
+        if (isTypingTarget(event.target) || event.metaKey || event.ctrlKey || event.altKey) return;
+
+        switch (event.key.toLowerCase()) {
+            case 'c':
+                startRoundTimer(readTimeSeconds('prep-min', 'prep-sec'), Game.PHASES.PREP);
+                break;
+            case 'i':
+                startRoundTimer(readTimeSeconds('impro-min', 'impro-sec'), Game.PHASES.IMPRO);
+                break;
+            case 'escape':
+                stopRoundTimer();
+                break;
+            default:
+                return;
+        }
+
+        event.preventDefault();
+    });
+}
+
 /* -------------------------------------------------------------------------- */
 /*  DOM bindings                                                               */
 /* -------------------------------------------------------------------------- */
@@ -312,7 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startBtn = document.getElementById('start-round');
     const startImproBtn = document.getElementById('start-impro');
+    const stopTimerBtn = document.getElementById('stop-timer');
     const resetBtn = document.getElementById('reset-round');
+    const resetCardsBtn = document.getElementById('reset-cards');
+    const resetScoresBtn = document.getElementById('reset-scores');
+    const resetMatchBtn = document.getElementById('reset-match');
 
     const controlPage = document.getElementById('control-page');
     const settingsPage = document.getElementById('settings-page');
@@ -389,16 +454,35 @@ document.addEventListener('DOMContentLoaded', () => {
         startRoundTimer(readTimeSeconds('impro-min', 'impro-sec'), Game.PHASES.IMPRO);
     });
 
+    stopTimerBtn?.addEventListener('click', () => {
+        stopRoundTimer();
+    });
+
     resetBtn?.addEventListener('click', () => {
         resetProjectorDisplay();
+    });
+
+    resetCardsBtn?.addEventListener('click', () => {
+        resetCards();
+    });
+
+    resetScoresBtn?.addEventListener('click', () => {
+        resetScores();
+    });
+
+    resetMatchBtn?.addEventListener('click', () => {
+        resetMatch();
     });
 
     document.getElementById('open-projector-btn')?.addEventListener('click', () => {
         window.open('../projector/projector.html', '_blank');
     });
 
+    bindKeyboardShortcuts();
     updateSettingsInputs();
     renderControlState();
     persistSettings();
+    persistSession();
     broadcastState();
+    scheduleTimerTicks();
 });

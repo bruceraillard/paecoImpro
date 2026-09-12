@@ -3,6 +3,7 @@
 
     const CHANNEL_NAME = 'impro-game';
     const STORAGE_KEY = 'impro-settings';
+    const SESSION_STORAGE_KEY = 'impro-session';
     const MAX_TEAMS = 4;
     const MIN_TEAMS = 2;
 
@@ -114,6 +115,17 @@
         });
     }
 
+    function createStateFromSession(sessionCandidate, settingsCandidate) {
+        if (!sessionCandidate || typeof sessionCandidate !== 'object') {
+            return createInitialState(settingsCandidate);
+        }
+
+        return normalizeState({
+            ...sessionCandidate,
+            settings: normalizeSettings(sessionCandidate.settings || settingsCandidate)
+        });
+    }
+
     function cloneState(state) {
         return normalizeState(JSON.parse(JSON.stringify(normalizeState(state))));
     }
@@ -197,11 +209,27 @@
         return next;
     }
 
+    function resetScores(state) {
+        const next = cloneState(state);
+        next.scores = normalizeCounterList([], 999);
+        return next;
+    }
+
+    function resetCards(state) {
+        const next = cloneState(state);
+        next.cards = normalizeCounterList([], 3);
+        return next;
+    }
+
     function resetRoundDisplay(state) {
         const next = cloneState(state);
         next.round = normalizeRound({});
         next.timer = normalizeTimer(DEFAULT_TIMER);
         return next;
+    }
+
+    function resetMatch(state) {
+        return resetCards(resetScores(resetRoundDisplay(state)));
     }
 
     function formatTime(totalSeconds) {
@@ -220,6 +248,7 @@
     const api = {
         CHANNEL_NAME,
         STORAGE_KEY,
+        SESSION_STORAGE_KEY,
         MAX_TEAMS,
         MIN_TEAMS,
         MESSAGE_TYPES,
@@ -229,6 +258,7 @@
         normalizeSettings,
         normalizeState,
         createInitialState,
+        createStateFromSession,
         cloneState,
         setTeamCount,
         updateTeam,
@@ -238,7 +268,10 @@
         startTimer,
         tickTimer,
         stopTimer,
+        resetScores,
+        resetCards,
         resetRoundDisplay,
+        resetMatch,
         formatTime,
         getPhaseLabel
     };

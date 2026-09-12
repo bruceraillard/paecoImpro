@@ -15,10 +15,12 @@ informations importantes.
   équipe (les équipes avec trois cartons sont automatiquement estompées sur le projecteur).
 - **Chronomètre manuel précis** : lancez séparément le temps de caucus et le temps d'impro, avec un affichage visuel en
   anneau et une mise en garde quand il reste moins de cinq secondes.
+- **Commandes de régie** : arrêtez le chrono, réinitialisez les cartons, les scores ou toute la partie depuis le
+  contrôleur.
 - **Broadcast en temps réel** : le contrôleur et le projecteur communiquent via `BroadcastChannel`. Le contrôleur diffuse
   des snapshots complets de l'état du jeu pour synchroniser le timer, les scores, les cartons, le thème et la catégorie.
-- **Sauvegarde locale** : les paramètres d'équipes sont mémorisés dans le `localStorage` et automatiquement rechargés au
-  prochain démarrage.
+- **Sauvegarde locale** : les paramètres d'équipes et la session en cours sont mémorisés dans le `localStorage` et
+  automatiquement rechargés au prochain démarrage.
 
 ## Structure du projet
 
@@ -73,7 +75,8 @@ cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nou
 2. Ajustez le nombre d'équipes puis personnalisez leur nom/couleur dans l'onglet **Paramètres**.
 3. Depuis l'onglet **Contrôle**, gérez les scores et les cartons pour chaque équipe.
 4. Lancez le chronomètre de caucus ou d'impro. Les informations sont envoyées instantanément au projecteur.
-5. Utilisez **Réinitialiser l’affichage** pour effacer le timer et les infos de manche côté projecteur.
+5. Utilisez **Nouvelle manche** pour effacer le timer et les infos de manche côté projecteur, ou les commandes de reset
+   pour remettre à zéro les cartons, les scores ou toute la partie.
 
 ### Interface projecteur
 
@@ -85,6 +88,8 @@ La fenêtre projecteur affiche :
 
 Lorsque trois cartons sont attribués à une équipe, celle-ci devient automatiquement semi-transparente pour signaler la
 pénalité.
+
+Appuyez sur `F` dans la fenêtre projecteur pour passer l'affichage en plein écran ou en sortir.
 
 ## Packaging
 

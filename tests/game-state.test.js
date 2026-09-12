@@ -21,6 +21,35 @@ test('createInitialState normalizes persisted settings and defaults gameplay sta
     assert.equal(state.timer.isRunning, false);
 });
 
+test('createStateFromSession restores a normalized full game session', () => {
+    const state = Game.createStateFromSession({
+        settings: {
+            teamCount: 3,
+            teams: [{name: 'Rouge', color: '#ff0000'}]
+        },
+        round: {
+            theme: 'Polar',
+            category: 'Mixte'
+        },
+        scores: [2, 4],
+        cards: [1, 3],
+        timer: {
+            phase: Game.PHASES.PREP,
+            remaining: 30,
+            total: 60,
+            isRunning: true,
+            startedAt: 1000
+        }
+    });
+
+    assert.equal(state.settings.teamCount, 3);
+    assert.equal(state.settings.teams[0].name, 'Rouge');
+    assert.deepEqual(state.round, {theme: 'Polar', category: 'Mixte'});
+    assert.deepEqual(state.scores, [2, 4, 0, 0]);
+    assert.deepEqual(state.cards, [1, 3, 0, 0]);
+    assert.equal(state.timer.isRunning, true);
+});
+
 test('team count is clamped to the supported range', () => {
     const base = Game.createInitialState();
 
@@ -69,6 +98,31 @@ test('round info and reset only affect public round display state', () => {
     assert.equal(reset.settings.teamCount, 3);
     assert.equal(reset.scores[0], 4);
     assert.equal(reset.cards[1], 1);
+});
+
+test('score, card and match resets preserve the expected state slices', () => {
+    let state = Game.createInitialState({teamCount: 3});
+    state = Game.updateTeam(state, 1, {name: 'Bleus'});
+    state = Game.adjustScore(state, 1, 5);
+    state = Game.adjustCards(state, 2, 2);
+    state = Game.setRoundInfo(state, {theme: 'Cuisine', category: 'Chantée'});
+    state = Game.startTimer(state, 45, Game.PHASES.PREP, 1000);
+
+    const scoreReset = Game.resetScores(state);
+    assert.deepEqual(scoreReset.scores, [0, 0, 0, 0]);
+    assert.equal(scoreReset.cards[1], 2);
+    assert.equal(scoreReset.round.theme, 'Cuisine');
+
+    const cardReset = Game.resetCards(state);
+    assert.equal(cardReset.scores[0], 5);
+    assert.deepEqual(cardReset.cards, [0, 0, 0, 0]);
+
+    const matchReset = Game.resetMatch(state);
+    assert.equal(matchReset.settings.teams[0].name, 'Bleus');
+    assert.deepEqual(matchReset.scores, [0, 0, 0, 0]);
+    assert.deepEqual(matchReset.cards, [0, 0, 0, 0]);
+    assert.deepEqual(matchReset.round, {theme: '', category: ''});
+    assert.equal(matchReset.timer.isRunning, false);
 });
 
 test('timer lifecycle tracks remaining time and stops at zero', () => {

@@ -185,6 +185,25 @@ button:hover {
     color: #fff;
 }
 
+button.secondary-action {
+    background: #fff;
+    color: #40350c;
+}
+
+button.secondary-action:hover {
+    background: #40350c;
+    color: #fff;
+}
+
+button.danger-action {
+    background: #ff3b30;
+    color: #fff;
+}
+
+button.danger-action:hover {
+    background: #7a160f;
+}
+
 /* Team score panels -------------------------------------------------------- */
 .teams-controls {
     width: 100%;

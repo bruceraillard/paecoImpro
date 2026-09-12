@@ -4,11 +4,11 @@
 const Game = window.ImproGame;
 const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
-let gameState = Game.createInitialState(readStoredSettings());
+let gameState = Game.tickTimer(Game.createStateFromSession(readStoredSession(), readStoredSettings()));
 let lastTimer = gameState.timer;
 
-function readStoredSettings() {
-    const saved = localStorage.getItem(Game.STORAGE_KEY);
+function readStoredJson(storageKey) {
+    const saved = localStorage.getItem(storageKey);
     if (!saved) return null;
 
     try {
@@ -18,8 +18,37 @@ function readStoredSettings() {
     }
 }
 
+function readStoredSettings() {
+    return readStoredJson(Game.STORAGE_KEY);
+}
+
+function readStoredSession() {
+    return readStoredJson(Game.SESSION_STORAGE_KEY);
+}
+
+function persistSession() {
+    localStorage.setItem(Game.SESSION_STORAGE_KEY, JSON.stringify(Game.cloneState(gameState)));
+}
+
 function requestState() {
     channel.postMessage({type: Game.MESSAGE_TYPES.STATE_REQUEST});
+}
+
+function toggleFullscreen() {
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+        return;
+    }
+
+    document.documentElement.requestFullscreen?.();
+}
+
+function bindKeyboardShortcuts() {
+    document.addEventListener('keydown', event => {
+        if (event.key.toLowerCase() !== 'f' || event.metaKey || event.ctrlKey || event.altKey) return;
+        event.preventDefault();
+        toggleFullscreen();
+    });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,10 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
     channel.onmessage = ({data}) => {
         if (data?.type !== Game.MESSAGE_TYPES.STATE_SNAPSHOT) return;
         gameState = Game.normalizeState(data.payload);
+        persistSession();
         renderProjectorState();
     };
 
+    bindKeyboardShortcuts();
     renderProjectorState();
+    persistSession();
     requestState();
     setTimeout(requestState, 250);
 });
