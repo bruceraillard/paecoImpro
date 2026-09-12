@@ -36,6 +36,7 @@ informations importantes.
 ├── build                   # Icônes et fichiers de packaging Electron Builder
 ├── main.js                 # Processus principal Electron et serveur statique local
 ├── package.json            # Scripts npm, dépendances et configuration electron-builder
+├── scripts                 # Automatisations projet, dont la vérification de release
 └── README.md
 ```
 
@@ -70,6 +71,10 @@ cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nou
   ```bash
   npm test
   ```
+- Vérifier une release locale complète :
+  ```bash
+  npm run release:check
+  ```
 
 ### Utilisation du contrôleur
 
@@ -98,6 +103,10 @@ Appuyez sur `F` dans la fenêtre projecteur pour passer l'affichage en plein éc
 
 L'application utilise [electron-builder](https://www.electron.build/) pour générer des exécutables.
 
+- Vérifier la qualité du code puis générer un pack local :
+  ```bash
+  npm run release:check
+  ```
 - Préparer un dossier prêt à empaqueter :
   ```bash
   npm run pack
@@ -108,6 +117,15 @@ L'application utilise [electron-builder](https://www.electron.build/) pour gén�
   ```
 
 Les paramètres d'identité applicative, d'icônes et de cibles sont configurés dans `package.json`.
+Les sorties générées sont écrites dans `dist/`, qui n'est pas versionné.
+
+### Checklist de release
+
+1. Installer les dépendances avec `npm ci`.
+2. Lancer `npm run release:check`.
+3. Vérifier que `dist/` contient un pack local `Paeco Impro`.
+4. Pour une diffusion macOS publique, signer et notariser l'application avec un certificat Apple Developer.
+5. Générer les installateurs finaux avec `npm run dist`.
 
 ## Sécurité Electron
 
