@@ -8,7 +8,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "electron .",
-    "check": "node --check main.js && node --check app/control/control.js && node --check app/projector/projector.js",
+    "check": "node --check main.js && node --check app/shared/game-state.js && node --check app/control/control.js && node --check app/projector/projector.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },

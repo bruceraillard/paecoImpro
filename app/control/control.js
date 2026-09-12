@@ -1,118 +1,113 @@
 /* -------------------------------------------------------------------------- */
-/*  Messaging channel and persisted configuration                             */
+/*  Shared state and messaging                                                 */
 /* -------------------------------------------------------------------------- */
-const channel = new BroadcastChannel('impro-game');
+const Game = window.ImproGame;
+const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
-const DEFAULT_SETTINGS = {
-    teamCount: 2,
-    teams: [
-        {name: '', color: '#e6194B'},
-        {name: '', color: '#3cb44b'},
-        {name: '', color: '#ffe119'},
-        {name: '', color: '#4363d8'}
-    ]
-};
+let gameState = Game.createInitialState(readStoredSettings());
+let timerId = null;
 
-function normalizeSettings(candidate) {
-    const input = candidate && typeof candidate === 'object' ? candidate : {};
-    const teamCount = Math.min(4, Math.max(2, Number(input.teamCount) || DEFAULT_SETTINGS.teamCount));
-    const sourceTeams = Array.isArray(input.teams) ? input.teams : [];
-    const teams = DEFAULT_SETTINGS.teams.map((defaultTeam, index) => {
-        const team = sourceTeams[index] && typeof sourceTeams[index] === 'object' ? sourceTeams[index] : {};
+function readStoredSettings() {
+    const saved = localStorage.getItem(Game.STORAGE_KEY);
+    if (!saved) return null;
 
-        return {
-            name: typeof team.name === 'string' ? team.name : defaultTeam.name,
-            color: typeof team.color === 'string' && team.color ? team.color : defaultTeam.color
-        };
-    });
-
-    return {teamCount, teams};
+    try {
+        return JSON.parse(saved);
+    } catch {
+        return null;
+    }
 }
 
-let settings = normalizeSettings(DEFAULT_SETTINGS);
-let scores = [], cards = [];
+function persistSettings() {
+    localStorage.setItem(Game.STORAGE_KEY, JSON.stringify(gameState.settings));
+}
+
+function broadcastState() {
+    channel.postMessage({
+        type: Game.MESSAGE_TYPES.STATE_SNAPSHOT,
+        payload: Game.cloneState(gameState)
+    });
+}
+
+function applyState(nextState, options = {}) {
+    gameState = Game.normalizeState(nextState);
+
+    if (options.persistSettings) {
+        persistSettings();
+    }
+
+    renderControlState();
+
+    if (options.broadcast !== false) {
+        broadcastState();
+    }
+}
+
+channel.onmessage = ({data}) => {
+    if (data?.type === Game.MESSAGE_TYPES.STATE_REQUEST) {
+        broadcastState();
+    }
+};
 
 /* -------------------------------------------------------------------------- */
-/*  Manual timer lifecycle                                                    */
+/*  Manual timer lifecycle                                                     */
 /* -------------------------------------------------------------------------- */
-let timerId = null;
-let timerPhase = null;   // labels whether we are timing the caucus or the improv
-let timerTotal = 0;      // full duration in seconds for the current phase
-let timerStartedAt = 0;  // millisecond timestamp captured when the phase begins
+function clearTimerInterval() {
+    if (!timerId) return;
+    clearInterval(timerId);
+    timerId = null;
+}
 
-function startManualTimer(totalSeconds, phase) {
-    stopManualTimer();
+function scheduleTimerTicks() {
+    clearTimerInterval();
 
-    timerPhase = phase;
-    timerTotal = Math.max(0, Number(totalSeconds) || 0);
-    timerStartedAt = Date.now();
-
-    channel.postMessage({type: 'timer', payload: {phase: timerPhase, remaining: timerTotal, total: timerTotal}});
+    if (!gameState.timer.isRunning) return;
 
     timerId = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
-        const remaining = Math.max(0, timerTotal - elapsed);
+        gameState = Game.tickTimer(gameState);
+        broadcastState();
 
-        channel.postMessage({type: 'timer', payload: {phase: timerPhase, remaining, total: timerTotal}});
-
-        if (remaining === 0) {
-            stopManualTimer();
+        if (!gameState.timer.isRunning) {
+            clearTimerInterval();
         }
     }, 250);
 }
 
-function stopManualTimer() {
-    if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-        channel.postMessage({type: 'timerStop', payload: {phase: timerPhase, total: timerTotal}});
-    }
+function startRoundTimer(totalSeconds, phase) {
+    clearTimerInterval();
+
+    gameState = Game.setRoundInfo(gameState, readRoundInfo());
+    gameState = Game.startTimer(gameState, totalSeconds, phase);
+    renderControlState();
+    broadcastState();
+    scheduleTimerTicks();
 }
 
 function resetProjectorDisplay() {
-    stopManualTimer();
-    channel.postMessage({type: 'roundReset'});
+    clearTimerInterval();
+    applyState(Game.resetRoundDisplay(gameState));
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Settings synchronisation                                                  */
-
+/*  Rendering                                                                  */
 /* -------------------------------------------------------------------------- */
-function loadSettings() {
-    const saved = localStorage.getItem('impro-settings');
-    if (!saved) {
-        settings = normalizeSettings(DEFAULT_SETTINGS);
-        return;
-    }
-
-    try {
-        settings = normalizeSettings(JSON.parse(saved));
-    } catch {
-        settings = normalizeSettings(DEFAULT_SETTINGS);
-    }
-}
-
-function saveSettings() {
-    localStorage.setItem('impro-settings', JSON.stringify(settings));
-    channel.postMessage({type: 'settingsUpdate', payload: settings});
-    updateTeamControls();
-}
-
 function updateTeamConfigs() {
     document.querySelectorAll('.team-config').forEach(container => {
         const idx = Number(container.dataset.teamIndex);
-        container.classList.toggle('hidden', idx > settings.teamCount);
+        container.classList.toggle('hidden', idx > gameState.settings.teamCount);
     });
 }
 
 function updateTeamControls() {
     document.querySelectorAll('.team-control').forEach(el => {
-        const i = +el.dataset.teamIndex;
-        if (i <= settings.teamCount) {
+        const teamIndex = Number(el.dataset.teamIndex);
+        const info = gameState.settings.teams[teamIndex - 1] || {};
+
+        if (teamIndex <= gameState.settings.teamCount) {
             el.classList.remove('hidden');
-            const info = settings.teams[i - 1] || {};
+
             const nameEl = el.querySelector('.team-name');
-            nameEl.textContent = info.name || `Équipe ${i}`;
+            nameEl.textContent = info.name || `Équipe ${teamIndex}`;
             nameEl.style.color = '#fff';
             nameEl.style.backgroundColor = info.color || '#000';
             el.style.border = `3px solid ${info.color || '#000'}`;
@@ -124,32 +119,65 @@ function updateTeamControls() {
 }
 
 function updateScoreUI() {
-    scores.forEach((v, i) => {
-        const el = document.querySelector(`.score-value[data-team-index="${i + 1}"]`);
-        if (el) el.textContent = v;
+    document.querySelectorAll('.score-value').forEach(el => {
+        const teamIndex = Number(el.dataset.teamIndex);
+        el.textContent = gameState.scores[teamIndex - 1] ?? 0;
     });
 }
 
 function updateCardsUI() {
-    cards.forEach((v, i) => {
-        const el = document.querySelector(`.cards-value[data-team-index="${i + 1}"]`);
-        if (el) el.textContent = v;
+    document.querySelectorAll('.cards-value').forEach(el => {
+        const teamIndex = Number(el.dataset.teamIndex);
+        el.textContent = gameState.cards[teamIndex - 1] ?? 0;
     });
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Small helpers                                                             */
+function updateSettingsInputs() {
+    const teamCountSelect = document.getElementById('team-count');
+    if (teamCountSelect) {
+        teamCountSelect.value = String(gameState.settings.teamCount);
+    }
 
-/* -------------------------------------------------------------------------- */
-function readTimeSeconds(minId, secId) {
-    const m = Math.max(0, Number(document.getElementById(minId)?.value) || 0);
-    const sRaw = Math.max(0, Number(document.getElementById(secId)?.value) || 0);
-    // on tolère si sRaw > 59 (ex: 75s → 1m15s) en calculant simplement :
-    return m * 60 + sRaw;
+    document.querySelectorAll('.team-config').forEach(container => {
+        const index = Number(container.dataset.teamIndex) - 1;
+        const team = gameState.settings.teams[index];
+        const nameInput = container.querySelector('input[type="text"]');
+        const colorInput = container.querySelector('input[type="color"]');
+
+        if (nameInput) nameInput.value = team?.name || '';
+        if (colorInput) colorInput.value = team?.color || '#000000';
+    });
+}
+
+function renderControlState() {
+    updateTeamConfigs();
+    updateTeamControls();
+    updateScoreUI();
+    updateCardsUI();
 }
 
 /* -------------------------------------------------------------------------- */
-/*  DOM bindings                                                              */
+/*  Small helpers                                                              */
+/* -------------------------------------------------------------------------- */
+function readTimeSeconds(minId, secId) {
+    const minutes = Math.max(0, Number(document.getElementById(minId)?.value) || 0);
+    const seconds = Math.max(0, Number(document.getElementById(secId)?.value) || 0);
+    return minutes * 60 + seconds;
+}
+
+function readRoundInfo() {
+    return {
+        theme: document.getElementById('theme')?.value || '',
+        category: document.getElementById('category')?.value || ''
+    };
+}
+
+function getButtonTeamIndex(button) {
+    return Number(button.dataset.teamIndex);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  DOM bindings                                                               */
 /* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
     const teamCountSelect = document.getElementById('team-count');
@@ -166,114 +194,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navControl?.addEventListener('click', () => {
         navControl.classList.add('active');
-        navSettings.classList.remove('active');
-        controlPage.classList.remove('hidden');
-        settingsPage.classList.add('hidden');
+        navSettings?.classList.remove('active');
+        controlPage?.classList.remove('hidden');
+        settingsPage?.classList.add('hidden');
     });
+
     navSettings?.addEventListener('click', () => {
         navSettings.classList.add('active');
-        navControl.classList.remove('active');
-        controlPage.classList.add('hidden');
-        settingsPage.classList.remove('hidden');
+        navControl?.classList.remove('active');
+        controlPage?.classList.add('hidden');
+        settingsPage?.classList.remove('hidden');
     });
 
-    loadSettings();
-    scores = Array(settings.teamCount).fill(0);
-    cards = Array(settings.teamCount).fill(0);
-    updateTeamControls();
-    updateScoreUI();
-    updateCardsUI();
-
-    if (teamCountSelect) {
-        teamCountSelect.value = settings.teamCount;
-        teamCountSelect.addEventListener('change', () => {
-            settings.teamCount = Number(teamCountSelect.value);
-            scores = Array(settings.teamCount).fill(0);
-            cards = Array(settings.teamCount).fill(0);
-            updateTeamConfigs();
-            saveSettings();
+    teamCountSelect?.addEventListener('change', () => {
+        applyState(Game.setTeamCount(gameState, teamCountSelect.value), {
+            persistSettings: true
         });
+    });
 
-        teamConfigs.forEach(container => {
-            const idx = Number(container.dataset.teamIndex) - 1;
-            const nameInput = container.querySelector('input[type="text"]');
-            const colorInput = container.querySelector('input[type="color"]');
+    teamConfigs.forEach(container => {
+        const teamIndex = Number(container.dataset.teamIndex);
+        const nameInput = container.querySelector('input[type="text"]');
+        const colorInput = container.querySelector('input[type="color"]');
 
-            nameInput.value = settings.teams[idx].name;
-            colorInput.value = settings.teams[idx].color;
-
-            nameInput.addEventListener('input', () => {
-                settings.teams[idx].name = nameInput.value;
-                saveSettings();
-            });
-            colorInput.addEventListener('input', () => {
-                settings.teams[idx].color = colorInput.value;
-                saveSettings();
+        nameInput?.addEventListener('input', () => {
+            applyState(Game.updateTeam(gameState, teamIndex, {name: nameInput.value}), {
+                persistSettings: true
             });
         });
 
-        updateTeamConfigs();
-        channel.postMessage({type: 'init', payload: settings});
-    }
+        colorInput?.addEventListener('input', () => {
+            applyState(Game.updateTeam(gameState, teamIndex, {color: colorInput.value}), {
+                persistSettings: true
+            });
+        });
+    });
 
     document.querySelectorAll('.score-add').forEach(btn => {
         btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (i >= 0 && i < scores.length) {
-                scores[i]++;
-                updateScoreUI();
-                channel.postMessage({type: 'scoreUpdate', payload: {teamIndex: i + 1, score: scores[i]}});
-            }
+            applyState(Game.adjustScore(gameState, getButtonTeamIndex(btn), 1));
         });
     });
+
     document.querySelectorAll('.score-remove').forEach(btn => {
         btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (i >= 0 && i < scores.length && scores[i] > 0) {
-                scores[i]--;
-                updateScoreUI();
-                channel.postMessage({type: 'scoreUpdate', payload: {teamIndex: i + 1, score: scores[i]}});
-            }
+            applyState(Game.adjustScore(gameState, getButtonTeamIndex(btn), -1));
         });
     });
 
     document.querySelectorAll('.cards-add').forEach(btn => {
         btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (i >= 0 && i < cards.length && cards[i] < 3) {
-                cards[i]++;
-                updateCardsUI();
-                channel.postMessage({type: 'cardsUpdate', payload: {teamIndex: i + 1, cards: cards[i]}});
-            }
+            applyState(Game.adjustCards(gameState, getButtonTeamIndex(btn), 1));
         });
     });
+
     document.querySelectorAll('.cards-remove').forEach(btn => {
         btn.addEventListener('click', () => {
-            const i = +btn.dataset.teamIndex - 1;
-            if (i >= 0 && i < cards.length && cards[i] > 0) {
-                cards[i]--;
-                updateCardsUI();
-                channel.postMessage({type: 'cardsUpdate', payload: {teamIndex: i + 1, cards: cards[i]}});
-            }
+            applyState(Game.adjustCards(gameState, getButtonTeamIndex(btn), -1));
         });
     });
 
-    function broadcastRoundInfo() {
-        const theme = document.getElementById('theme')?.value || '';
-        const category = document.getElementById('category')?.value || '';
-        channel.postMessage({type: 'roundStart', payload: {theme, category}});
-    }
-
     startBtn?.addEventListener('click', () => {
-        const prepTime = readTimeSeconds('prep-min', 'prep-sec');
-        broadcastRoundInfo();
-        startManualTimer(prepTime, 'prep');
+        startRoundTimer(readTimeSeconds('prep-min', 'prep-sec'), Game.PHASES.PREP);
     });
 
     startImproBtn?.addEventListener('click', () => {
-        const improTime = readTimeSeconds('impro-min', 'impro-sec');
-        broadcastRoundInfo();
-        startManualTimer(improTime, 'impro');
+        startRoundTimer(readTimeSeconds('impro-min', 'impro-sec'), Game.PHASES.IMPRO);
     });
 
     resetBtn?.addEventListener('click', () => {
@@ -283,4 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('open-projector-btn')?.addEventListener('click', () => {
         window.open('../projector/projector.html', '_blank');
     });
+
+    updateSettingsInputs();
+    renderControlState();
+    persistSettings();
+    broadcastState();
 });

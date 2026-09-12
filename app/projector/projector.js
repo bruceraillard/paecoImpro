@@ -1,77 +1,72 @@
 /* -------------------------------------------------------------------------- */
-/*  Channel bootstrap                                                          */
+/*  Shared state and messaging                                                 */
 /* -------------------------------------------------------------------------- */
-const channel = new BroadcastChannel('impro-game');
+const Game = window.ImproGame;
+const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
-let settings = {teamCount: 2, teams: []};
-let lastTimer = {remaining: 0, total: 1};
+let gameState = Game.createInitialState(readStoredSettings());
+let lastTimer = gameState.timer;
 
-/* -------------------------------------------------------------------------- */
-/*  Utilities                                                                  */
-/* -------------------------------------------------------------------------- */
-function formatTime(totalSeconds) {
-    const seconds = Math.max(0, Math.floor(totalSeconds));
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-}
+function readStoredSettings() {
+    const saved = localStorage.getItem(Game.STORAGE_KEY);
+    if (!saved) return null;
 
-function loadSettings() {
-    const saved = localStorage.getItem('impro-settings');
-    if (!saved) return;
     try {
-        const parsed = JSON.parse(saved);
-        settings = {
-            teamCount: Math.min(4, Math.max(1, Number(parsed.teamCount) || 2)),
-            teams: Array.isArray(parsed.teams) ? parsed.teams.slice(0, 4) : []
-        };
+        return JSON.parse(saved);
     } catch {
-        settings = {teamCount: 2, teams: []};
+        return null;
     }
 }
 
-function updateTeamDisplays() {
+function requestState() {
+    channel.postMessage({type: Game.MESSAGE_TYPES.STATE_REQUEST});
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Rendering                                                                  */
+/* -------------------------------------------------------------------------- */
+function renderTeams() {
     document.querySelectorAll('.team-display').forEach(el => {
-        const idx = Number(el.dataset.teamIndex);
-        const info = settings.teams[idx - 1] || {};
-        if (idx <= settings.teamCount) {
+        const teamIndex = Number(el.dataset.teamIndex);
+        const team = gameState.settings.teams[teamIndex - 1] || {};
+        const score = gameState.scores[teamIndex - 1] ?? 0;
+        const cards = gameState.cards[teamIndex - 1] ?? 0;
+
+        if (teamIndex <= gameState.settings.teamCount) {
             el.classList.remove('hidden');
-            el.querySelector('.team-header').textContent = info.name || `Équipe ${idx}`;
-            el.style.setProperty('--team-color', info.color || '#ffffff');
+            el.querySelector('.team-header').textContent = team.name || `Équipe ${teamIndex}`;
+            el.querySelector('.score').textContent = String(score);
+            el.style.setProperty('--team-color', team.color || '#ffffff');
+            el.style.opacity = cards >= 3 ? 0.35 : 1;
+
+            el.querySelectorAll('.card').forEach((card, idx) => {
+                card.classList.toggle('filled', idx < cards);
+            });
         } else {
             el.classList.add('hidden');
         }
     });
 }
 
-function updateScore(teamIndex, value) {
-    const el = document.querySelector(`.team-display[data-team-index="${teamIndex}"] .score`);
-    if (el) el.textContent = String(value ?? 0);
+function renderRoundInfo() {
+    document.getElementById('display-theme').textContent = gameState.round.theme || '—';
+    document.getElementById('display-category').textContent = gameState.round.category || '—';
 }
 
-function updateCards(teamIndex, value) {
-    const v = Math.max(0, Math.min(3, Number(value) || 0));
-    const cardEls = document.querySelectorAll(`.team-display[data-team-index="${teamIndex}"] .card`);
-    cardEls.forEach((card, idx) => card.classList.toggle('filled', idx < v));
-    const teamEl = document.querySelector(`.team-display[data-team-index="${teamIndex}"]`);
-    if (teamEl) teamEl.style.opacity = v >= 3 ? 0.35 : 1;
+function renderTimer() {
+    const timer = gameState.timer;
+    lastTimer = timer;
+
+    document.getElementById('phase-label').textContent = Game.getPhaseLabel(timer.phase);
+    document.getElementById('timer-value').textContent = Game.formatTime(timer.remaining);
+    document.getElementById('timer-display').classList.toggle('danger', timer.remaining <= 5 && timer.remaining > 0);
+    updateProgressCircle(timer.remaining, timer.total);
 }
 
-function resetRoundDisplay() {
-    document.getElementById('display-theme').textContent = '—';
-    document.getElementById('display-category').textContent = '—';
-    document.getElementById('phase-label').textContent = '';
-    document.getElementById('timer-value').textContent = '00:00';
-    lastTimer = {remaining: 0, total: 1};
-    updateProgressCircle(lastTimer.remaining, lastTimer.total);
-    document.getElementById('timer-display').classList.remove('danger');
-}
-
-function updatePhaseLabel(phase) {
-    const label = document.getElementById('phase-label');
-    label.textContent = phase === 'prep' ? 'Caucus'
-        : phase === 'impro' ? 'Impro'
-            : '';
+function renderProjectorState() {
+    renderTeams();
+    renderRoundInfo();
+    renderTimer();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,58 +95,13 @@ window.addEventListener('resize', () => {
 /*  Initialisation                                                             */
 /* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
-    updateTeamDisplays();
-
     channel.onmessage = ({data}) => {
-        const {type, payload} = data || {};
-        switch (type) {
-            case 'init':
-            case 'settingsUpdate': {
-                if (payload) {
-                    settings = {
-                        teamCount: Math.min(4, Math.max(1, Number(payload.teamCount) || 2)),
-                        teams: Array.isArray(payload.teams) ? payload.teams.slice(0, 4) : []
-                    };
-                }
-                updateTeamDisplays();
-                break;
-            }
-
-            case 'scoreUpdate':
-                updateScore(payload?.teamIndex, payload?.score);
-                break;
-
-            case 'cardsUpdate':
-                updateCards(payload?.teamIndex, payload?.cards);
-                break;
-
-            case 'roundStart':
-                document.getElementById('display-theme').textContent = payload?.theme ?? '—';
-                document.getElementById('display-category').textContent = payload?.category ?? '—';
-                break;
-
-            case 'timer': {
-                lastTimer = {
-                    remaining: Number(payload?.remaining) || 0,
-                    total: Number(payload?.total) || 60
-                };
-                updatePhaseLabel(payload?.phase);
-                updateProgressCircle(lastTimer.remaining, lastTimer.total);
-                document.getElementById('timer-value').textContent = formatTime(lastTimer.remaining);
-                const isDanger = lastTimer.remaining <= 5 && lastTimer.remaining > 0;
-                document.getElementById('timer-display').classList.toggle('danger', isDanger);
-                break;
-            }
-
-            case 'timerStop':
-                break;
-
-            case 'roundReset':
-                resetRoundDisplay();
-                break;
-        }
+        if (data?.type !== Game.MESSAGE_TYPES.STATE_SNAPSHOT) return;
+        gameState = Game.normalizeState(data.payload);
+        renderProjectorState();
     };
 
-    updateProgressCircle(lastTimer.remaining, lastTimer.total);
+    renderProjectorState();
+    requestState();
+    setTimeout(requestState, 250);
 });

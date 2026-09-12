@@ -15,8 +15,8 @@ informations importantes.
   équipe (les équipes avec trois cartons sont automatiquement estompées sur le projecteur).
 - **Chronomètre manuel précis** : lancez séparément le temps de caucus et le temps d'impro, avec un affichage visuel en
   anneau et une mise en garde quand il reste moins de cinq secondes.
-- **Broadcast en temps réel** : le contrôleur et le projecteur communiquent via `BroadcastChannel`, ce qui permet une
-  synchronisation immédiate du timer, des scores, des cartons ainsi que du thème et de la catégorie de la manche.
+- **Broadcast en temps réel** : le contrôleur et le projecteur communiquent via `BroadcastChannel`. Le contrôleur diffuse
+  des snapshots complets de l'état du jeu pour synchroniser le timer, les scores, les cartons, le thème et la catégorie.
 - **Sauvegarde locale** : les paramètres d'équipes sont mémorisés dans le `localStorage` et automatiquement rechargés au
   prochain démarrage.
 
@@ -27,7 +27,8 @@ informations importantes.
 ├── app
 │   ├── assets              # Fonts, logo et autres ressources statiques
 │   ├── control             # Interface du régisseur (HTML, CSS, JS)
-│   └── projector           # Interface du projecteur (HTML, CSS, JS)
+│   ├── projector           # Interface du projecteur (HTML, CSS, JS)
+│   └── shared              # État central, constantes et contrat de synchronisation
 ├── build                   # Icônes et fichiers de packaging Electron Builder
 ├── main.js                 # Processus principal Electron et serveur statique Express
 ├── package.json            # Scripts npm, dépendances et configuration electron-builder
