@@ -5,6 +5,12 @@ interface « contrôleur » pour le régisseur et une interface « projecteur »
 les manches, le chronomètre et les scores, tandis que l'affichage projecteur synchronisé retransmet en direct les
 informations importantes.
 
+## Documentation
+
+- [Guide d'exploitation](docs/guide-exploitation.md) : routine régie avant, pendant et après un spectacle.
+- [Architecture](docs/architecture.md) : organisation technique, flux de synchronisation et responsabilités.
+- [Manuel d'utilisation PDF](Manuel%20d'utilisation%20Paeco%20Impro.pdf) : support utilisateur existant.
+
 ## Fonctionnalités
 
 - **Deux interfaces dédiées** : une fenêtre de contrôle et une fenêtre projecteur, chacune avec une expérience adaptée.
@@ -34,6 +40,7 @@ informations importantes.
 │   ├── projector           # Interface du projecteur (HTML, CSS, JS)
 │   └── shared              # État central, utilitaires navigateur et contrat de synchronisation
 ├── build                   # Icônes et fichiers de packaging Electron Builder
+├── docs                    # Guides d'exploitation et documentation d'architecture
 ├── main.js                 # Processus principal Electron et serveur statique local
 ├── package.json            # Scripts npm, dépendances et configuration electron-builder
 ├── scripts                 # Automatisations projet, dont la vérification de release
@@ -77,6 +84,8 @@ cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nou
   ```
 
 ### Utilisation du contrôleur
+
+Pour la conduite en spectacle, voir aussi le [guide d'exploitation](docs/guide-exploitation.md).
 
 1. Configurez la manche (thème, catégorie, durées de caucus et d'impro).
 2. Ajustez le nombre d'équipes puis personnalisez leur nom/couleur dans l'onglet **Paramètres**.
@@ -140,6 +149,9 @@ Les sorties générées sont écrites dans `dist/`, qui n'est pas versionné.
 - Les logos et médias sont stockés dans `app/assets/`.
 - La logique temps réel (scores, timer, paramètres) est partagée via `app/shared/game-state.js`, puis orchestrée par
   `app/control/control.js` et `app/projector/projector.js` à l'aide de l'API `BroadcastChannel`.
+
+Pour plus de détails sur les responsabilités des fichiers et le flux de synchronisation, voir
+[la documentation d'architecture](docs/architecture.md).
 
 ## Dépannage
 
