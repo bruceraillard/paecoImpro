@@ -30,7 +30,7 @@ informations importantes.
 │   ├── assets              # Fonts, logo et autres ressources statiques
 │   ├── control             # Interface du régisseur (HTML, CSS, JS)
 │   ├── projector           # Interface du projecteur (HTML, CSS, JS)
-│   └── shared              # État central, constantes et contrat de synchronisation
+│   └── shared              # État central, utilitaires navigateur et contrat de synchronisation
 ├── build                   # Icônes et fichiers de packaging Electron Builder
 ├── main.js                 # Processus principal Electron et serveur statique local
 ├── package.json            # Scripts npm, dépendances et configuration electron-builder
@@ -117,8 +117,8 @@ Les paramètres d'identité applicative, d'icônes et de cibles sont configurés
 
 - Les styles peuvent être adaptés dans `app/control/control.css` et `app/projector/projector.css`.
 - Les logos et médias sont stockés dans `app/assets/`.
-- La logique temps réel (scores, timer, paramètres) est implémentée dans `app/control/control.js` et
-  `app/projector/projector.js` à l'aide de l'API `BroadcastChannel`.
+- La logique temps réel (scores, timer, paramètres) est partagée via `app/shared/game-state.js`, puis orchestrée par
+  `app/control/control.js` et `app/projector/projector.js` à l'aide de l'API `BroadcastChannel`.
 
 ## Dépannage
 

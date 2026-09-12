@@ -2,32 +2,23 @@
 /*  Shared state and messaging                                                 */
 /* -------------------------------------------------------------------------- */
 const Game = window.ImproGame;
+const Browser = window.ImproBrowser;
+const createElement = Browser.createElement;
 const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
 let gameState = Game.tickTimer(Game.createStateFromSession(readStoredSession(), readStoredSettings()));
 let lastTimer = gameState.timer;
 
-function readStoredJson(storageKey) {
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return null;
-
-    try {
-        return JSON.parse(saved);
-    } catch {
-        return null;
-    }
-}
-
 function readStoredSettings() {
-    return readStoredJson(Game.STORAGE_KEY);
+    return Browser.readStorageJson(localStorage, Game.STORAGE_KEY);
 }
 
 function readStoredSession() {
-    return readStoredJson(Game.SESSION_STORAGE_KEY);
+    return Browser.readStorageJson(localStorage, Game.SESSION_STORAGE_KEY);
 }
 
 function persistSession() {
-    localStorage.setItem(Game.SESSION_STORAGE_KEY, JSON.stringify(Game.cloneState(gameState)));
+    Browser.writeStorageJson(localStorage, Game.SESSION_STORAGE_KEY, Game.cloneState(gameState));
 }
 
 function requestState() {
@@ -49,28 +40,6 @@ function bindKeyboardShortcuts() {
         event.preventDefault();
         toggleFullscreen();
     });
-}
-
-/* -------------------------------------------------------------------------- */
-/*  DOM creation                                                               */
-/* -------------------------------------------------------------------------- */
-function createElement(tagName, options = {}, children = []) {
-    const element = document.createElement(tagName);
-
-    if (options.className) element.className = options.className;
-    if (options.textContent !== undefined) element.textContent = options.textContent;
-    if (options.ariaLabel) element.setAttribute('aria-label', options.ariaLabel);
-    if (options.style) element.setAttribute('style', options.style);
-
-    if (options.dataset) {
-        Object.entries(options.dataset).forEach(([key, value]) => {
-            element.dataset[key] = String(value);
-        });
-    }
-
-    children.forEach(child => element.append(child));
-
-    return element;
 }
 
 function createCards() {

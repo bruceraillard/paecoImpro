@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "electron .",
     "test": "node --test",
-    "check": "node --check main.js && node --check app/shared/game-state.js && node --check app/control/control.js && node --check app/projector/projector.js && node --test",
+    "check": "node --check main.js && node --check app/shared/game-state.js && node --check app/shared/browser-utils.js && node --check app/control/control.js && node --check app/projector/projector.js && node --test",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
