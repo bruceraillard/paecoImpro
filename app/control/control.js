@@ -13,7 +13,23 @@ const DEFAULT_SETTINGS = {
     ]
 };
 
-let settings = {...DEFAULT_SETTINGS};
+function normalizeSettings(candidate) {
+    const input = candidate && typeof candidate === 'object' ? candidate : {};
+    const teamCount = Math.min(4, Math.max(2, Number(input.teamCount) || DEFAULT_SETTINGS.teamCount));
+    const sourceTeams = Array.isArray(input.teams) ? input.teams : [];
+    const teams = DEFAULT_SETTINGS.teams.map((defaultTeam, index) => {
+        const team = sourceTeams[index] && typeof sourceTeams[index] === 'object' ? sourceTeams[index] : {};
+
+        return {
+            name: typeof team.name === 'string' ? team.name : defaultTeam.name,
+            color: typeof team.color === 'string' && team.color ? team.color : defaultTeam.color
+        };
+    });
+
+    return {teamCount, teams};
+}
+
+let settings = normalizeSettings(DEFAULT_SETTINGS);
 let scores = [], cards = [];
 
 /* -------------------------------------------------------------------------- */
@@ -38,6 +54,10 @@ function startManualTimer(totalSeconds, phase) {
         const remaining = Math.max(0, timerTotal - elapsed);
 
         channel.postMessage({type: 'timer', payload: {phase: timerPhase, remaining, total: timerTotal}});
+
+        if (remaining === 0) {
+            stopManualTimer();
+        }
     }, 250);
 }
 
@@ -60,7 +80,16 @@ function resetProjectorDisplay() {
 /* -------------------------------------------------------------------------- */
 function loadSettings() {
     const saved = localStorage.getItem('impro-settings');
-    settings = saved ? JSON.parse(saved) : {...DEFAULT_SETTINGS};
+    if (!saved) {
+        settings = normalizeSettings(DEFAULT_SETTINGS);
+        return;
+    }
+
+    try {
+        settings = normalizeSettings(JSON.parse(saved));
+    } catch {
+        settings = normalizeSettings(DEFAULT_SETTINGS);
+    }
 }
 
 function saveSettings() {

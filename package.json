@@ -8,6 +8,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "electron .",
+    "check": "node --check main.js && node --check app/control/control.js && node --check app/projector/projector.js",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
@@ -20,7 +21,7 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.votreorg.impro",
+    "appId": "fr.paeco.impro",
     "productName": "Paeco Impro",
     "files": [
       "app/**",

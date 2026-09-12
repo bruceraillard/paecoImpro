@@ -7,6 +7,7 @@
     --fz-h2: 2.6vmin;
     --fz-body: 1.8vmin;
 
+    --content-w: 1120px;
     --card-min: 240px;
     --gap: 2vmin;
 }
@@ -35,7 +36,6 @@ h1, h2 {
 }
 
 h1 {
-    font-size: --fz-h1;
     font-size: var(--fz-h1);
     color: #fed32e;
     font-family: "Horta", serif;
