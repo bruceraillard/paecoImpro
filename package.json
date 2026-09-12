@@ -6,6 +6,9 @@
   "license": "MIT",
   "main": "main.js",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "electron .",
     "test": "node --test",
@@ -13,17 +16,20 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
-  "dependencies": {
-    "express": "^4.19.0",
-    "serve-static": "^1.15.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "electron": "^31.7.7",
-    "electron-builder": "^24.13.3"
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "fr.paeco.impro",
     "productName": "Paeco Impro",
+    "copyright": "Copyright © 2026 Bruce Raillard",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
     "files": [
       "app/**",
       "main.js",
@@ -31,18 +37,20 @@
       "node_modules/**"
     ],
     "asar": true,
+    "npmRebuild": false,
     "mac": {
       "target": [
         "dmg"
       ],
-      "icon": "build/icons/icon.icns",
+      "icon": "icons/icon.icns",
       "category": "public.app-category.entertainment"
     },
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "build/icons/icon.ico"
-    }
+      "icon": "icons/icon.ico"
+    },
+    "publish": null
   }
 }

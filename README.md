@@ -30,14 +30,14 @@ informations importantes.
 │   ├── projector           # Interface du projecteur (HTML, CSS, JS)
 │   └── shared              # État central, constantes et contrat de synchronisation
 ├── build                   # Icônes et fichiers de packaging Electron Builder
-├── main.js                 # Processus principal Electron et serveur statique Express
+├── main.js                 # Processus principal Electron et serveur statique local
 ├── package.json            # Scripts npm, dépendances et configuration electron-builder
 └── README.md
 ```
 
 ## Prérequis
 
-- Node.js 18 ou version ultérieure (recommandé pour Electron 31).
+- Node.js 22.12 ou version ultérieure (requis par Electron 44).
 - npm (installé avec Node.js).
 
 Après avoir cloné le dépôt, installez les dépendances :
@@ -53,7 +53,7 @@ npm run dev
 ```
 
 Ce script démarre le processus principal Electron (`main.js`). Celui-ci ouvre automatiquement la fenêtre de contrôle et
-sert les fichiers statiques contenus dans `app/` via un mini-serveur Express local. Depuis la fenêtre de contrôle,
+sert les fichiers statiques contenus dans `app/` via un mini-serveur local. Depuis la fenêtre de contrôle,
 cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nouvelle fenêtre.
 
 ## Qualité
@@ -100,6 +100,13 @@ L'application utilise [electron-builder](https://www.electron.build/) pour gén�
   ```
 
 Les paramètres d'identité applicative, d'icônes et de cibles sont configurés dans `package.json`.
+
+## Sécurité Electron
+
+- Les fenêtres Electron désactivent l'accès Node côté renderer et utilisent l'isolation de contexte.
+- Les permissions navigateur sont refusées par défaut.
+- Les navigations et ouvertures de fenêtres sont limitées aux pages servies par l'application locale.
+- Les fichiers statiques sont servis avec une Content Security Policy restrictive.
 
 ## Personnalisation
 
