@@ -148,6 +148,10 @@ input[type="text"], input[type="number"], select {
     .twoColumns {
         grid-template-columns: 1fr;
     }
+
+    .live-status {
+        grid-template-columns: 1fr;
+    }
 }
 
 .time-fields {
@@ -185,6 +189,23 @@ button:hover {
     color: #fff;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+button:disabled:hover {
+    background: #fed32e;
+    color: #000;
+}
+
+button.is-active {
+    background: #40350c;
+    color: #fff;
+    outline: 2px solid #fed32e;
+    outline-offset: 3px;
+}
+
 button.secondary-action {
     background: #fff;
     color: #40350c;
@@ -195,6 +216,11 @@ button.secondary-action:hover {
     color: #fff;
 }
 
+button.secondary-action:disabled:hover {
+    background: #fff;
+    color: #40350c;
+}
+
 button.danger-action {
     background: #ff3b30;
     color: #fff;
@@ -202,6 +228,52 @@ button.danger-action {
 
 button.danger-action:hover {
     background: #7a160f;
+}
+
+button.danger-action:disabled:hover {
+    background: #ff3b30;
+    color: #fff;
+}
+
+.live-status {
+    width: 100%;
+    max-width: var(--content-w);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    gap: .8rem;
+}
+
+.status-pill {
+    min-height: 70px;
+    display: grid;
+    align-content: center;
+    gap: .25rem;
+    padding: .8rem 1rem;
+    border: 2px solid #fed32e;
+    border-radius: var(--radius);
+    background: rgba(0, 0, 0, .5);
+    text-align: center;
+}
+
+.status-pill span {
+    color: #fff;
+    font-size: max(12px, 1.2vmin);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pill strong {
+    color: #fed32e;
+    font-size: max(18px, 2.2vmin);
+    line-height: 1.1;
+}
+
+.live-status.is-running .status-pill {
+    border-color: #fff;
+}
+
+.live-status.is-danger .status-pill:nth-child(2) strong {
+    color: #ff3b30;
 }
 
 /* Team score panels -------------------------------------------------------- */

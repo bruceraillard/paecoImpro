@@ -8,6 +8,7 @@ const channel = new BroadcastChannel(Game.CHANNEL_NAME);
 
 let gameState = Game.tickTimer(Game.createStateFromSession(readStoredSession(), readStoredSettings()));
 let timerId = null;
+let lastBroadcastAt = null;
 
 function readStoredSettings() {
     return Browser.readStorageJson(localStorage, Game.STORAGE_KEY);
@@ -26,10 +27,12 @@ function persistSession() {
 }
 
 function broadcastState() {
+    lastBroadcastAt = Date.now();
     channel.postMessage({
         type: Game.MESSAGE_TYPES.STATE_SNAPSHOT,
         payload: Game.cloneState(gameState)
     });
+    renderSyncStatus();
 }
 
 function applyState(nextState, options = {}) {
@@ -97,6 +100,7 @@ function stopRoundTimer() {
 function resetProjectorDisplay() {
     clearTimerInterval();
     applyState(Game.resetRoundDisplay(gameState));
+    updateRoundInputs();
 }
 
 function resetCards() {
@@ -112,6 +116,7 @@ function resetMatch() {
     if (!window.confirm('Démarrer une nouvelle partie et remettre scores, cartons et manche à zéro ?')) return;
     clearTimerInterval();
     applyState(Game.resetMatch(gameState));
+    updateRoundInputs();
 }
 
 function createCounterControl(type, teamIndex) {
@@ -271,11 +276,79 @@ function updateSettingsInputs() {
     });
 }
 
+function setInputValue(id, value) {
+    const input = document.getElementById(id);
+    if (!input || document.activeElement === input || input.value === value) return;
+    input.value = value;
+}
+
+function updateRoundInputs() {
+    setInputValue('theme', gameState.round.theme || '');
+    setInputValue('category', gameState.round.category || '');
+}
+
+function updateActionButtons() {
+    const timer = gameState.timer;
+    const isPrepRunning = timer.isRunning && timer.phase === Game.PHASES.PREP;
+    const isImproRunning = timer.isRunning && timer.phase === Game.PHASES.IMPRO;
+    const stopTimerBtn = document.getElementById('stop-timer');
+    const startRoundBtn = document.getElementById('start-round');
+    const startImproBtn = document.getElementById('start-impro');
+
+    if (stopTimerBtn) {
+        stopTimerBtn.disabled = !timer.isRunning;
+    }
+
+    [
+        [startRoundBtn, isPrepRunning],
+        [startImproBtn, isImproRunning]
+    ].forEach(([button, isActive]) => {
+        if (!button) return;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+}
+
+function renderSyncStatus() {
+    const syncStatus = document.getElementById('sync-status');
+    if (!syncStatus) return;
+
+    if (gameState.timer.isRunning) {
+        syncStatus.textContent = 'Diffusion active';
+        return;
+    }
+
+    syncStatus.textContent = lastBroadcastAt ? 'Synchronisé' : 'Prêt';
+}
+
+function renderLiveStatus() {
+    const status = document.getElementById('live-status');
+    const phase = document.getElementById('control-phase');
+    const timerValue = document.getElementById('control-timer-value');
+    const timer = gameState.timer;
+    const phaseLabel = Game.getPhaseLabel(timer.phase);
+
+    status?.classList.toggle('is-running', timer.isRunning);
+    status?.classList.toggle('is-danger', timer.remaining <= 5 && timer.remaining > 0);
+
+    if (phase) {
+        phase.textContent = phaseLabel || 'En attente';
+    }
+
+    if (timerValue) {
+        timerValue.textContent = Game.formatTime(timer.remaining);
+    }
+
+    renderSyncStatus();
+}
+
 function renderControlState() {
     updateTeamConfigs();
     updateTeamControls();
     updateScoreUI();
     updateCardsUI();
+    updateActionButtons();
+    renderLiveStatus();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -438,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bindKeyboardShortcuts();
     updateSettingsInputs();
+    updateRoundInputs();
     renderControlState();
     persistSettings();
     persistSession();

@@ -126,7 +126,7 @@ function renderTimer() {
     const timer = gameState.timer;
     lastTimer = timer;
 
-    document.getElementById('phase-label').textContent = Game.getPhaseLabel(timer.phase);
+    document.getElementById('phase-label').textContent = Game.getPhaseLabel(timer.phase) || 'En attente';
     document.getElementById('timer-value').textContent = Game.formatTime(timer.remaining);
     document.getElementById('timer-display').classList.toggle('danger', timer.remaining <= 5 && timer.remaining > 0);
     updateProgressCircle(timer.remaining, timer.total);

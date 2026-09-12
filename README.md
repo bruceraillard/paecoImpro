@@ -17,6 +17,8 @@ informations importantes.
   anneau et une mise en garde quand il reste moins de cinq secondes.
 - **Commandes de régie** : arrêtez le chrono, réinitialisez les cartons, les scores ou toute la partie depuis le
   contrôleur.
+- **Retour d'état en régie** : le contrôleur affiche la phase active, le temps restant et l'état de diffusion vers le
+  projecteur.
 - **Broadcast en temps réel** : le contrôleur et le projecteur communiquent via `BroadcastChannel`. Le contrôleur diffuse
   des snapshots complets de l'état du jeu pour synchroniser le timer, les scores, les cartons, le thème et la catégorie.
 - **Sauvegarde locale** : les paramètres d'équipes et la session en cours sont mémorisés dans le `localStorage` et
@@ -75,7 +77,8 @@ cliquez sur **Ouvrir le Projecteur** pour lancer l'affichage public dans une nou
 2. Ajustez le nombre d'équipes puis personnalisez leur nom/couleur dans l'onglet **Paramètres**.
 3. Depuis l'onglet **Contrôle**, gérez les scores et les cartons pour chaque équipe.
 4. Lancez le chronomètre de caucus ou d'impro. Les informations sont envoyées instantanément au projecteur.
-5. Utilisez **Nouvelle manche** pour effacer le timer et les infos de manche côté projecteur, ou les commandes de reset
+5. Suivez le panneau d'état pour vérifier la phase active, le chrono et la diffusion projecteur.
+6. Utilisez **Nouvelle manche** pour effacer le timer et les infos de manche côté projecteur, ou les commandes de reset
    pour remettre à zéro les cartons, les scores ou toute la partie.
 
 ### Interface projecteur
